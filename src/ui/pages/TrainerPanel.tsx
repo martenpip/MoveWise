@@ -32,17 +32,40 @@ interface PanelProps {
   warning: PendingWarning | null;
   onReconsider: () => void;
   onPlayAnyway: () => void;
+  /** True when the warning is shown somewhere else on the page (under the board on a phone), so it is not drawn here too. */
+  warningElsewhere?: boolean;
+}
+
+/**
+ * The pre-move warning with its two choices. On a phone it is drawn right under the board, so the buttons are on screen without
+ * scrolling; on larger screens it stays in the Trainer panel beside the board.
+ */
+export function TrainerWarning({ warning, onReconsider, onPlayAnyway }: { warning: PendingWarning; onReconsider: () => void; onPlayAnyway: () => void }) {
+  const reconsiderRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    reconsiderRef.current?.focus();
+  }, [warning]);
+  return (
+    <div className="trainer-warning" role="alert" data-testid="trainer-warning">
+      <strong>Before you play that move</strong>
+      <p style={{ margin: '6px 0' }}>{warning.text}</p>
+      <div className="btn-row">
+        <button ref={reconsiderRef} className="btn primary" type="button" onClick={onReconsider} data-testid="trainer-reconsider">
+          Let me reconsider
+        </button>
+        <button className="btn" type="button" onClick={onPlayAnyway} data-testid="trainer-play-anyway">
+          Play the move anyway
+        </button>
+      </div>
+    </div>
+  );
 }
 
 /** The Trainer's messages beside the board, with the pre-move warning and the speech controls. Text is always shown; speech only adds to it. */
-export function TrainerPanel({ messages, checking, warning, onReconsider, onPlayAnyway }: PanelProps) {
+export function TrainerPanel({ messages, checking, warning, onReconsider, onPlayAnyway, warningElsewhere }: PanelProps) {
   const { speech, settings, updateSettings } = useApp();
   const st = useSpeechState(speech);
   const prefs = settings.trainer;
-  const reconsiderRef = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    if (warning) reconsiderRef.current?.focus();
-  }, [warning]);
   const set = (patch: Partial<TrainerPrefs>) => updateSettings({ trainer: { ...prefs, ...patch } });
   const latest = [...messages].reverse().slice(0, 4);
   const canSpeak = st.status === 'ready';
@@ -50,20 +73,7 @@ export function TrainerPanel({ messages, checking, warning, onReconsider, onPlay
   return (
     <section className="card trainer-card" aria-labelledby="h-trainer" data-testid="trainer-panel">
       <h2 id="h-trainer" className="h3-look" style={{ marginTop: 0 }}>Your Trainer</h2>
-      {warning && (
-        <div className="trainer-warning" role="alert" data-testid="trainer-warning">
-          <strong>Before you play that move</strong>
-          <p style={{ margin: '6px 0' }}>{warning.text}</p>
-          <div className="btn-row">
-            <button ref={reconsiderRef} className="btn primary" type="button" onClick={onReconsider} data-testid="trainer-reconsider">
-              Let me reconsider
-            </button>
-            <button className="btn" type="button" onClick={onPlayAnyway} data-testid="trainer-play-anyway">
-              Play the move anyway
-            </button>
-          </div>
-        </div>
-      )}
+      {warning && !warningElsewhere && <TrainerWarning warning={warning} onReconsider={onReconsider} onPlayAnyway={onPlayAnyway} />}
       {checking && !warning && <p className="muted small" role="status">Checking your move…</p>}
       <div aria-live="polite" data-testid="trainer-messages">
         {latest.length === 0 && !warning && <p className="muted">I will comment on key moments. Make your first move when you are ready.</p>}

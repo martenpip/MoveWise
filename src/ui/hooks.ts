@@ -100,3 +100,18 @@ export function useStoredData(): { data: StoredData | null; error: string | null
 
   return { data, error, reload: notifyDataChanged };
 }
+
+/** Whether a CSS media query currently matches, kept up to date (for example a phone-width screen). False where matchMedia is missing. */
+export function useMediaQuery(query: string): boolean {
+  const get = () => (typeof matchMedia === 'function' ? matchMedia(query).matches : false);
+  const [matches, setMatches] = useState(get);
+  useEffect(() => {
+    if (typeof matchMedia !== 'function') return;
+    const mq = matchMedia(query);
+    const on = () => setMatches(mq.matches);
+    on();
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, [query]);
+  return matches;
+}

@@ -3,9 +3,8 @@
  * licences to track, and nothing to cache for offline use. A recipe schedules nodes on any BaseAudioContext, so the
  * same code runs live (AudioContext) and in tests (OfflineAudioContext).
  *
- * Board sounds are meant to evoke wood on wood: a short filtered-noise "knock" (the impact), a low sine "body"
- * (the board resonating) and a tiny bright "click" (the piece's felt/edge). Captures are lower, longer and
- * heavier. Pitched sounds (check, promotion, achievements) use soft bell/marimba partials, never raw beeps.
+ * Board sounds are meant to be a soft thump of a piece set down on a padded wooden board: a rounded low body, a quiet
+ * wooden overtone and a muffled touch of felt. Captures are lower, longer and heavier. Pitched sounds (check, promotion, achievements) use soft bell/marimba partials, never raw beeps.
  */
 import type { SoundKind } from './kinds';
 
@@ -52,6 +51,8 @@ interface NoiseOpts {
   len?: number;
   /** Optional filter sweep target. */
   toFreq?: number;
+  /** Seconds to reach full level. A slower attack is what makes a sound feel soft instead of sharp. */
+  attack?: number;
 }
 
 function noise(vc: Voice, o: NoiseOpts): void {
@@ -72,8 +73,9 @@ function noise(vc: Voice, o: NoiseOpts): void {
   const bw = o.type === 'bandpass' ? o.freq / (o.q ?? 1) : o.type === 'lowpass' ? o.freq : nyq;
   const comp = Math.min(14, Math.sqrt(nyq / Math.max(bw, 40))) * (o.type === 'highpass' ? 1 : 0.45);
   g.gain.setValueAtTime(0.0001, at);
-  g.gain.linearRampToValueAtTime(o.gain * comp, at + 0.0015);
-  g.gain.setTargetAtTime(0, at + 0.0015, o.tau);
+  const att = o.attack ?? 0.0015;
+  g.gain.linearRampToValueAtTime(o.gain * comp, at + att);
+  g.gain.setTargetAtTime(0, at + att, o.tau);
   src.connect(f).connect(g).connect(out);
   src.start(at, 0.02 + Math.abs(vc.v) * 0.2);
   src.stop(at + len);
@@ -123,23 +125,29 @@ function marimba(vc: Voice, at: number, freq: number, gain: number, tau: number)
 const pitch = (vc: Voice, f: number, amount = 0.05): number => f * (1 + vc.v * amount);
 
 /**
- * The core wooden knock: impact + resonant body + bright click.
- * `weight` scales loudness; `body` is how much low resonance there is (more = heavier, deeper).
+ * The board "thump": a piece set down on a padded wooden board. It is built to be soft and warm, not sharp:
+ *  - a low rounded body that drops a little in pitch, with a slow-ish attack so there is no click at the start,
+ *  - a quieter upper partial that gives it the wood (a phone speaker cannot play the lowest note, but it does play this),
+ *  - a muffled contact noise, low-passed, as the felt touches the board,
+ *  - a very quiet second note a moment later, as the piece settles, so each move lands with a small sense of weight.
+ * `weight` scales loudness; `pitch` sets the brightness (lower = heavier); `body` is how much low resonance there is.
  */
 function knock(vc: Voice, o: { at?: number; weight: number; pitch: number; body?: number; knock?: number }): void {
   const at = o.at ?? 0;
   const w = o.weight;
-  const p = pitch(vc, o.pitch);
-  noise(vc, { at, type: 'bandpass', freq: p, q: 4, gain: (o.knock ?? 0.7) * w, tau: 0.010 + 0.008 * w, len: 0.16 });
-  tone(vc, { at, freq: p * 0.2, toFreq: p * 0.14, gain: (o.body ?? 0.12) * w, tau: 0.018 + 0.016 * w, len: 0.22 });
-  noise(vc, { at, type: 'highpass', freq: 2600, q: 0.7, gain: 0.26 / Math.sqrt(w), tau: 0.003, len: 0.03 });
+  const f0 = pitch(vc, o.pitch) * 0.4;
+  const body = (o.body ?? 0.22) * w;
+  tone(vc, { at, freq: f0, toFreq: f0 * 0.7, gain: body, tau: 0.05, attack: 0.006, len: 0.4 });
+  tone(vc, { at, freq: f0 * 2.1, toFreq: f0 * 1.9, gain: body * 0.7, tau: 0.03, attack: 0.005, len: 0.25 });
+  noise(vc, { at, type: 'lowpass', freq: pitch(vc, o.pitch) * 1.5, q: 0.5, gain: (o.knock ?? 0.5) * w * 0.5, tau: 0.014, attack: 0.005, len: 0.12 });
+  tone(vc, { at: at + 0.05, freq: f0 * 0.92, toFreq: f0 * 0.75, gain: body * 0.16, tau: 0.04, attack: 0.012, len: 0.3 });
 }
 
 const R: Record<SoundKind, Recipe> = {
   /* ---------------------------- board ---------------------------- */
   move: (vc) => {
     knock(vc, { weight: 0.8, pitch: 950 });
-    return 0.18;
+    return 0.22;
   },
   capture: (vc) => {
     // Heavier and lower, with a second lighter tap as the taken piece is lifted away.
@@ -184,8 +192,8 @@ const R: Record<SoundKind, Recipe> = {
     return 0.15;
   },
   select: (vc) => {
-    noise(vc, { type: 'highpass', freq: 3200, q: 0.7, gain: 0.2, tau: 0.004, len: 0.04 });
-    tone(vc, { freq: 1500, gain: 0.05, tau: 0.006, len: 0.05 });
+    noise(vc, { type: 'highpass', freq: 3200, q: 0.7, gain: 0.12, tau: 0.004, len: 0.04 });
+    tone(vc, { freq: 1500, gain: 0.03, tau: 0.006, len: 0.05 });
     return 0.05;
   },
   resultWin: (vc) => {

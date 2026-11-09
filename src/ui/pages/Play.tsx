@@ -12,9 +12,9 @@ import type { CurrentGame, SavedGame } from '../../storage/types';
 import { summariseGame } from '../progress';
 import { useApp } from '../app';
 import { Board } from '../Board';
-import { useEngineEval } from '../hooks';
+import { useEngineEval, useMediaQuery } from '../hooks';
 import { useTrainer } from '../useTrainer';
-import { TrainerPanel, type PendingWarning } from './TrainerPanel';
+import { TrainerPanel, TrainerWarning, type PendingWarning } from './TrainerPanel';
 import { CapturedRow, EvalBar, MoveList, MoveStrip, copyText, downloadText, engineLabel, formatScore, newId, viewAt } from '../shared';
 
 type ColorChoice = 'white' | 'black' | 'random';
@@ -46,6 +46,7 @@ export function PlayPage() {
   const [gameMode, setGameMode] = useState<'normal' | 'trainer'>('normal');
   const modeRef = useRef<'normal' | 'trainer'>('normal');
   const [warning, setWarning] = useState<PendingWarning | null>(null);
+  const phone = useMediaQuery('(max-width: 900px)');
   const trainer = useTrainer(phase0Trainer(gameMode), evalEngine, speech, settings.trainer);
   const noticedUnchecked = useRef(false);
 
@@ -595,6 +596,7 @@ export function PlayPage() {
           </div>
         </div>
         {strip(bottomColor)}
+        {phone && gameMode === 'trainer' && warning && <TrainerWarning warning={warning} onReconsider={reconsider} onPlayAnyway={playAnyway} />}
         <MoveStrip moves={g.moves} current={ply} onSelect={goPly} onFlip={() => setFlipped((f) => !f)} />
       </div>
 
@@ -660,7 +662,7 @@ export function PlayPage() {
         </div>
 
         {gameMode === 'trainer' && (
-          <TrainerPanel messages={trainer.messages} checking={trainer.checking} warning={warning} onReconsider={reconsider} onPlayAnyway={playAnyway} />
+          <TrainerPanel messages={trainer.messages} checking={trainer.checking} warning={warning} onReconsider={reconsider} onPlayAnyway={playAnyway} warningElsewhere={phone} />
         )}
 
         <div className="card moves-card">

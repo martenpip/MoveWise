@@ -2235,3 +2235,11 @@ h2.h3-look { font-size: 1.05rem; }
   /* The side-panel list would repeat the strip, so it is hidden on a phone. */
   .moves-card { display: none; }
 }
+
+/* The Trainer warning sits under the board on a phone: compact, with big buttons side by side where they fit. */
+@media (max-width: 900px) {
+  .board-col .trainer-warning { margin: 0; padding: 10px 12px; }
+  .board-col .trainer-warning p { margin: 4px 0 8px !important; line-height: 1.35; }
+  .board-col .trainer-warning .btn-row { gap: 8px; flex-wrap: nowrap; }
+  .board-col .trainer-warning .btn-row .btn { flex: 1 1 0; justify-content: center; padding: 8px 6px; font-size: 0.95rem; white-space: normal; line-height: 1.2; min-height: 46px; }
+}

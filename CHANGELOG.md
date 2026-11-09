@@ -5,6 +5,8 @@
 Changes after the first look on a real phone
 - New piece set, "Gloss": chunkier, rounded pieces with a heavy outline, a gradient body, a shaded side and a bright highlight. The silhouettes are original to MoveWise, not traced from or copied from any other set.
 - On a phone the moves now sit in one scrolling row directly under the board, with previous, next and flip buttons, so the game can be followed without scrolling. The full list stays in the side panel on larger screens.
+- Sound: the piece-placement sound is now a soft, warm thump instead of a sharp hollow knock (slower attack, lower and rounder, with a quiet wooden overtone so it still comes through a phone speaker). Measured, not yet judged by ear. See docs/sound-and-achievements.md.
+- Trainer on a phone: the "Before you play that move" warning, with Let me reconsider and Play the move anyway, now appears right under the board and is on screen without scrolling. New browser test: `npm run test:e2e:phone`.
 - A small vibration when a piece moves (Settings, on by default, phones only). Android uses the Vibration API. iPhone has no such API, so a light tap is attempted for your own moves only; that is a workaround and was not tested on a real device.
 - Board: a piece that had already slid across the board slid again when the next move was played, so pieces seemed to jump back and forth. Each move now slides exactly once. New browser test: `npm run test:e2e:board`.
 - Spoken coaching: installed voices the system labels Enhanced, Premium, Natural or Neural are now offered first when you have not picked a voice yourself. The default voices on phones are often the plainest ones. See docs/trainer.md for how to install better voices.
