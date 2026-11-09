@@ -1,0 +1,8 @@
+{"level":"casual","elo":1320,"movetime":150,"botWhite":true,"result":"0-1","plies":71,"how":"adjudicated-material","score":0}
+{"level":"casual","elo":1320,"movetime":150,"botWhite":false,"result":"1-0","plies":70,"how":"adjudicated-material","score":0}
+{"level":"casual","elo":1320,"movetime":150,"botWhite":true,"result":"0-1","plies":70,"how":"checkmate","score":0}
+{"level":"casual","elo":1320,"movetime":150,"botWhite":false,"result":"1-0","plies":111,"how":"checkmate","score":0}
+{"level":"casual","elo":1320,"movetime":150,"botWhite":true,"result":"0-1","plies":140,"how":"adjudicated-length","score":0}
+{"level":"casual","elo":1320,"movetime":150,"botWhite":false,"result":"1-0","plies":82,"how":"adjudicated-material","score":0}
+{"level":"casual","elo":1320,"movetime":150,"botWhite":true,"result":"0-1","plies":72,"how":"checkmate","score":0}
+{"level":"casual","elo":1320,"movetime":150,"botWhite":false,"result":"1-0","plies":140,"how":"adjudicated-length","score":0}

@@ -1,0 +1,12 @@
+{"weak":900,"strong":1100,"strongWhite":true,"result":"1-0","plies":29,"how":"checkmate","score":1}
+{"weak":900,"strong":1100,"strongWhite":false,"result":"0-1","plies":99,"how":"adjudicated-material","score":1}
+{"weak":900,"strong":1100,"strongWhite":true,"result":"1-0","plies":101,"how":"checkmate","score":1}
+{"weak":900,"strong":1100,"strongWhite":false,"result":"1-0","plies":98,"how":"adjudicated-material","score":0}
+{"weak":900,"strong":1100,"strongWhite":true,"result":"0-1","plies":140,"how":"adjudicated-length","score":0}
+{"weak":900,"strong":1100,"strongWhite":false,"result":"0-1","plies":52,"how":"checkmate","score":1}
+{"weak":900,"strong":1100,"strongWhite":true,"result":"0-1","plies":140,"how":"adjudicated-length","score":0}
+{"weak":900,"strong":1100,"strongWhite":false,"result":"0-1","plies":82,"how":"checkmate","score":1}
+{"weak":900,"strong":1100,"strongWhite":true,"result":"1/2-1/2","plies":140,"how":"adjudicated-length","score":0.5}
+{"weak":900,"strong":1100,"strongWhite":false,"result":"0-1","plies":115,"how":"adjudicated-material","score":1}
+{"weak":900,"strong":1100,"strongWhite":true,"result":"1/2-1/2","plies":140,"how":"adjudicated-length","score":0.5}
+{"weak":900,"strong":1100,"strongWhite":false,"result":"0-1","plies":53,"how":"adjudicated-material","score":1}

@@ -1,0 +1,12 @@
+{"level":"r1100","elo":1320,"movetime":150,"botWhite":true,"result":"1-0","plies":68,"how":"adjudicated-material","score":1}
+{"level":"r1100","elo":1320,"movetime":150,"botWhite":false,"result":"1/2-1/2","plies":140,"how":"adjudicated-length","score":0.5}
+{"level":"r1100","elo":1320,"movetime":150,"botWhite":true,"result":"1-0","plies":70,"how":"adjudicated-material","score":1}
+{"level":"r1100","elo":1320,"movetime":150,"botWhite":false,"result":"1-0","plies":69,"how":"checkmate","score":0}
+{"level":"r1100","elo":1320,"movetime":150,"botWhite":true,"result":"0-1","plies":140,"how":"adjudicated-length","score":0}
+{"level":"r1100","elo":1320,"movetime":150,"botWhite":false,"result":"1-0","plies":88,"how":"adjudicated-material","score":0}
+{"level":"r1100","elo":1320,"movetime":150,"botWhite":true,"result":"0-1","plies":140,"how":"adjudicated-length","score":0}
+{"level":"r1100","elo":1320,"movetime":150,"botWhite":false,"result":"1-0","plies":114,"how":"adjudicated-material","score":0}
+{"level":"r1100","elo":1320,"movetime":150,"botWhite":true,"result":"1-0","plies":42,"how":"adjudicated-material","score":1}
+{"level":"r1100","elo":1320,"movetime":150,"botWhite":false,"result":"1-0","plies":89,"how":"checkmate","score":0}
+{"level":"r1100","elo":1320,"movetime":150,"botWhite":true,"result":"0-1","plies":78,"how":"checkmate","score":0}
+{"level":"r1100","elo":1320,"movetime":150,"botWhite":false,"result":"1-0","plies":72,"how":"adjudicated-material","score":0}

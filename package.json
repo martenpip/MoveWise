@@ -1,0 +1,50 @@
+{
+  "name": "movewise",
+  "version": "0.8.0",
+  "description": "MoveWise \u2014 a free, open-source, offline-first chess learning app. Learn. Play. Improve.",
+  "license": "GPL-3.0-or-later",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/build.mjs && node scripts/serve.mjs",
+    "serve": "node scripts/serve.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "tsx --test tests/*.test.ts",
+    "test:e2e": "node tests/e2e/offline.mjs",
+    "test:contrast": "node scripts/contrast-audit.mjs",
+    "check": "npm run typecheck && npm test && npm run test:sound && npm run build && npm run test:e2e && npm run test:e2e:sound && npm run test:e2e:stockfish && npm run test:e2e:review && npm run test:e2e:puzzles && npm run test:e2e:academy && npm run test:e2e:notebook && npm run test:e2e:trainer && npm run test:e2e:home && npm run test:e2e:voice && npm run test:e2e:subpath && npm run test:e2e:viewports",
+    "test:sound": "node tests/sound-render.mjs",
+    "test:e2e:sound": "node tests/e2e/sound-achievements.mjs",
+    "test:e2e:stockfish": "node tests/e2e/stockfish.mjs",
+    "test:e2e:review": "node tests/e2e/review.mjs",
+    "test:e2e:puzzles": "node tests/e2e/puzzles.mjs",
+    "test:e2e:academy": "node tests/e2e/academy.mjs",
+    "test:e2e:notebook": "node tests/e2e/notebook.mjs",
+    "test:e2e:trainer": "node tests/e2e/trainer.mjs",
+    "test:e2e:home": "node tests/e2e/home.mjs",
+    "test:e2e:voice": "node tests/e2e/voice-real.mjs",
+    "audit:keyboard": "node scripts/keyboard-audit.mjs",
+    "test:e2e:subpath": "node tests/e2e/subpath.mjs",
+    "test:e2e:viewports": "node tests/e2e/viewports.mjs",
+    "test:upgrade": "node tests/e2e/migrate-from-v05.mjs",
+    "test:upgrade:v07": "node tests/e2e/migrate-from-v07.mjs",
+    "test:upgrade:v06": "node tests/e2e/migrate-from-v06.mjs",
+    "academy:validate": "tsx scripts/validate-academy.mts",
+    "academy:engine": "tsx scripts/check-academy-engine.mts"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "stockfish": "19.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "esbuild": "^0.25.0",
+    "playwright": "^1.50.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}

@@ -1,0 +1,4 @@
+{"key":"expert|max|10","a":"expert","b":"max","aWhite":true,"result":"1/2-1/2","scoreA":0.5,"plies":110,"how":"adjudicated-length","ms":389844}
+{"key":"expert|max|11","a":"expert","b":"max","aWhite":false,"result":"0-1","scoreA":1,"plies":110,"how":"adjudicated-length","ms":314289}
+{"key":"expert|max|12","a":"expert","b":"max","aWhite":true,"result":"1/2-1/2","scoreA":0.5,"plies":110,"how":"adjudicated-length","ms":345863}
+{"key":"expert|max|13","a":"expert","b":"max","aWhite":false,"result":"1/2-1/2","scoreA":0.5,"plies":110,"how":"adjudicated-length","ms":361934}
