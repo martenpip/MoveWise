@@ -24,6 +24,10 @@ Settings (Settings page, "Trainer voice"):
 - volume (separate from the sound-effects volume);
 - Replay the latest message, and Stop.
 
+**Making the voice sound less robotic.** MoveWise can only use the voices already installed on your device, and phones often default to the plainest one. On an iPhone or iPad, open Settings, Accessibility, Spoken Content, Voices, English, and download an Enhanced or Premium voice; on Windows, add a Natural voice in Settings, Time and language, Speech; on Android, install a high-quality voice in the device's text-to-speech settings. Then choose it in the voice list. Voices of this kind are listed first when you have not picked one. MoveWise will not use voices that stream from a server, because that would send your games to a speech service.
+
+**Why speech stops when you move.** Advice describes one position. When you make a move, take one back or the opponent replies, the old advice is stopped on purpose so it never talks about a board that no longer exists. Turn spoken coaching off in Settings if you prefer silence.
+
 Voice choice: an explicit pick wins. Otherwise the app matches the gender preference using the voice name (browsers do not expose a gender field, so this is a name-based guess and is described that way). If no voice matches, it uses the closest available English voice and tells you it is not an exact match.
 
 Behaviour: one message is spoken at a time. A new message cancels the previous one. Starting a new move, taking back, leaving the page, or turning speech off cancels speech, and late callbacks from a cancelled message are ignored. Only important messages are spoken: warnings, the welcome and the result, comments on your own mistakes and blunders, the bot's checks, captures and mates, and new threats against you. Other comments are shown as text only.

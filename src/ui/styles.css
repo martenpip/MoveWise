@@ -2178,3 +2178,60 @@ tbody th {
 /* Tile hints are a second <dd> (a valid description list); they keep the look of the text they replaced. */
 h2.h3-look { font-size: 1.05rem; }
 .tile dd.tile-hint { font-family: var(--font); font-size: 0.85rem; font-weight: 400; line-height: 1.4; }
+
+/* ---------- Phone: the moves sit directly under the board ---------- */
+.move-strip { display: none; }
+@media (max-width: 900px) {
+  .move-strip {
+    display: flex;
+    align-items: stretch;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 4px;
+  }
+  .move-strip .ms-scroll {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    white-space: nowrap;
+  }
+  .move-strip .ms-scroll::-webkit-scrollbar { display: none; }
+  .move-strip .ms-num { color: var(--muted); padding: 0 2px 0 8px; font-size: 0.85rem; }
+  .move-strip .ms-empty { color: var(--muted); padding: 0 8px; font-size: 0.9rem; font-family: inherit; }
+  .move-strip .ms-move {
+    min-height: 40px;
+    padding: 0 9px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .move-strip .ms-move[aria-current='true'] { background: var(--accent-soft, rgba(232, 176, 61, 0.22)); box-shadow: inset 0 -3px 0 var(--accent); }
+  .move-strip .ms-nav {
+    flex: none;
+    width: 44px;
+    min-height: 44px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .move-strip .ms-nav:disabled { opacity: 0.35; cursor: default; }
+  .move-strip .ms-flip { font-size: 1.15rem; border-left: 1px solid var(--line); border-radius: 0 8px 8px 0; }
+  /* The side-panel list would repeat the strip, so it is hidden on a phone. */
+  .moves-card { display: none; }
+}

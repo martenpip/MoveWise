@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { replaySound, soundForMove } from '../../audio/moveSound';
+import { tapHaptic } from '../haptics';
 import { Game, describeEnd } from '../../chess/game';
 import { toPgn } from '../../chess/pgn';
 import { BLACK, WHITE, moveFrom, moveTo, movePromo, moveToUci, type Color } from '../../chess/types';
@@ -14,7 +15,7 @@ import { Board } from '../Board';
 import { useEngineEval } from '../hooks';
 import { useTrainer } from '../useTrainer';
 import { TrainerPanel, type PendingWarning } from './TrainerPanel';
-import { CapturedRow, EvalBar, MoveList, copyText, downloadText, engineLabel, formatScore, newId, viewAt } from '../shared';
+import { CapturedRow, EvalBar, MoveList, MoveStrip, copyText, downloadText, engineLabel, formatScore, newId, viewAt } from '../shared';
 
 type ColorChoice = 'white' | 'black' | 'random';
 
@@ -210,6 +211,7 @@ export function PlayPage() {
         pendingPly.current = -1;
         setThinking(false);
         playSound(soundForMove(entry.info));
+        tapHaptic(!!entry.info.capture);
         persist();
         bump();
         if (modeRef.current === 'trainer') trainerAfterBot(fenBefore, reply.uci, plyBefore + 1, entry.info);
@@ -282,6 +284,7 @@ export function PlayPage() {
     const entry = game.playSquares(from, to, promo);
     if (!entry) return null;
     playSound(soundForMove(entry.info));
+    tapHaptic(!!entry.info.capture);
     persist();
     bump();
     return entry;
@@ -592,6 +595,7 @@ export function PlayPage() {
           </div>
         </div>
         {strip(bottomColor)}
+        <MoveStrip moves={g.moves} current={ply} onSelect={goPly} onFlip={() => setFlipped((f) => !f)} />
       </div>
 
       <aside className="stack" aria-label="Game panel">
@@ -659,7 +663,7 @@ export function PlayPage() {
           <TrainerPanel messages={trainer.messages} checking={trainer.checking} warning={warning} onReconsider={reconsider} onPlayAnyway={playAnyway} />
         )}
 
-        <div className="card">
+        <div className="card moves-card">
           <h3>Moves</h3>
           <MoveList moves={g.moves} current={ply} onSelect={goPly} />
           <div className="btn-row" style={{ marginTop: 10 }}>

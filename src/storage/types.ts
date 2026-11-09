@@ -22,6 +22,8 @@ export interface Settings {
   sound: SoundPrefs;
   showLegalMoves: boolean;
   showEvalBar: boolean;
+  /** A tiny vibration when a piece moves (phones that allow it). Missing on older saves = on. */
+  haptics: boolean;
   /** Last-used bot setup, so "quick play" remembers it. */
   bot: { level: string; personality: string; color: 'white' | 'black' | 'random' };
   /** Mistake Notebook preferences. Missing on older saves = defaults. */
@@ -36,6 +38,7 @@ export const DEFAULT_SETTINGS: Settings = {
   sound: DEFAULT_SOUND_PREFS,
   showLegalMoves: true,
   showEvalBar: false,
+  haptics: true,
   bot: { level: 'casual', personality: 'balanced', color: 'white' },
   notebook: { autoSave: true },
   trainer: DEFAULT_TRAINER_PREFS,

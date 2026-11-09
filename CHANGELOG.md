@@ -2,6 +2,13 @@
 
 ## 0.8.0
 
+Changes after the first look on a real phone
+- New piece set, "Gloss": chunkier, rounded pieces with a heavy outline, a gradient body, a shaded side and a bright highlight. The silhouettes are original to MoveWise, not traced from or copied from any other set.
+- On a phone the moves now sit in one scrolling row directly under the board, with previous, next and flip buttons, so the game can be followed without scrolling. The full list stays in the side panel on larger screens.
+- A small vibration when a piece moves (Settings, on by default, phones only). Android uses the Vibration API. iPhone has no such API, so a light tap is attempted for your own moves only; that is a workaround and was not tested on a real device.
+- Board: a piece that had already slid across the board slid again when the next move was played, so pieces seemed to jump back and forth. Each move now slides exactly once. New browser test: `npm run test:e2e:board`.
+- Spoken coaching: installed voices the system labels Enhanced, Premium, Natural or Neural are now offered first when you have not picked a voice yourself. The default voices on phones are often the plainest ones. See docs/trainer.md for how to install better voices.
+
 Pre-release hardening (no new features)
 - Accessibility: fixed the issues axe-core found (captured-piece labels, Profile definition lists, missing page headings on game screens, heading order on Analysis and in the Trainer panel, a keyboard-unreachable scrolling table). See docs/accessibility.md.
 - Stockfish bot levels now say that they were not measured game by game in MoveWise.

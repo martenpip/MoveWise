@@ -66,13 +66,15 @@ export interface VoiceChoice {
 }
 
 const isEnglish = (v: VoiceInfo): boolean => /^en([-_]|$)/i.test(v.lang);
+/** Voices the system labels as higher quality (iOS and macOS Enhanced/Premium, Windows Natural/Neural) sound far less robotic, so they come first. */
+const qualityRank = (v: VoiceInfo): number => (/\b(enhanced|premium|natural|neural)\b/i.test(v.name) ? 0 : 1);
 const langRank = (v: VoiceInfo): number => (/^en[-_]GB/i.test(v.lang) ? 0 : /^en[-_]US/i.test(v.lang) ? 1 : 2);
 
 /** Pick the best installed voice for the preferences. Never returns a voice that is not installed on the device. */
 export function chooseVoice(voices: readonly VoiceInfo[], prefs: Pick<TrainerPrefs, 'voiceGender' | 'voiceURI'>): VoiceChoice {
   const local = voices.filter((v) => v.local);
   const hiddenRemote = voices.length - local.length;
-  const english = local.filter(isEnglish).sort((a, b) => Number(b.isDefault) - Number(a.isDefault) || langRank(a) - langRank(b) || a.name.localeCompare(b.name));
+  const english = local.filter(isEnglish).sort((a, b) => qualityRank(a) - qualityRank(b) || Number(b.isDefault) - Number(a.isDefault) || langRank(a) - langRank(b) || a.name.localeCompare(b.name));
   const usable = english;
   if (usable.length === 0) {
     return {

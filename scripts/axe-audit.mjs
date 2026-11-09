@@ -51,7 +51,7 @@ try {
     await scan(page, L('Trainer game'));
     await page.locator('svg.board').focus();
     for (const k of ['Enter', 'ArrowUp', 'ArrowUp', 'Enter']) await page.keyboard.press(k);
-    await page.waitForSelector('.movelist button');
+    await page.waitForSelector('.movelist button, .ms-move', { state: 'attached' });
     await scan(page, L('Trainer game after a move'));
     await page.click('button:has-text("Resign")');
     await page.waitForSelector('[data-testid="game-results"]');

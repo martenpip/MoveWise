@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Position } from '../chess/position';
 import { BISHOP, KNIGHT, PAWN, QUEEN, ROOK, makePiece, pieceColor, pieceType, type Color } from '../chess/types';
 import type { Game, PlayedMove } from '../chess/game';
@@ -105,6 +106,37 @@ export function MoveList({ moves, current, onSelect }: { moves: readonly PlayedM
   return (
     <div className="movelist" role="group" aria-label="Move list">
       {rows}
+    </div>
+  );
+}
+
+/**
+ * A single scrolling row of moves for phones, shown directly under the board so the game can be followed without scrolling.
+ * The current move is kept in view. The full list stays in the side panel on larger screens.
+ */
+export function MoveStrip({ moves, current, onSelect, onFlip }: { moves: readonly PlayedMove[]; current: number; onSelect: (ply: number) => void; onFlip: () => void }) {
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = box.current?.querySelector<HTMLElement>('[aria-current="true"]');
+    const wrap = box.current;
+    if (!el || !wrap) return;
+    wrap.scrollLeft = el.offsetLeft - wrap.clientWidth / 2 + el.offsetWidth / 2;
+  }, [current, moves.length]);
+  const items = [];
+  for (let i = 0; i < moves.length; i++) {
+    if (i % 2 === 0) items.push(<span key={`n${i}`} className="ms-num">{i / 2 + 1}.</span>);
+    items.push(
+      <button key={`m${i}`} type="button" className="ms-move" aria-current={current === i + 1} onClick={() => onSelect(i + 1)}>
+        {moves[i]!.san}
+      </button>,
+    );
+  }
+  return (
+    <div className="move-strip" role="group" aria-label="Moves">
+      <button className="ms-nav" type="button" onClick={() => onSelect(current - 1)} disabled={current === 0} aria-label="Previous move">‹</button>
+      <div className="ms-scroll" ref={box}>{moves.length === 0 ? <span className="ms-empty">No moves yet</span> : items}</div>
+      <button className="ms-nav" type="button" onClick={() => onSelect(current + 1)} disabled={current >= moves.length} aria-label="Next move">›</button>
+      <button className="ms-nav ms-flip" type="button" onClick={onFlip} aria-label="Flip the board">⇅</button>
     </div>
   );
 }

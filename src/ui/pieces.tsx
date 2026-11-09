@@ -1,11 +1,16 @@
 import { pieceColor, pieceType } from '../chess/types';
-import { BLACK_PALETTE, PIECE_PARTS, STROKE_WIDTH, WHITE_PALETTE } from './pieceShapes';
+import { BLACK_PALETTE, PIECE_DEFS_MARKUP, PIECE_PARTS, STROKE_WIDTH, WHITE_PALETTE } from './pieceShapes';
 
 /**
  * Piece rendering. The artwork lives in `pieceShapes.ts` (plain data) so it can be reviewed,
  * rendered to images and tested without React. To add another piece set later, add a second
  * `PIECE_PARTS`-style table and select it here; callers only use `PieceG` / `PieceIcon`.
  */
+
+/** The piece gradients, rendered once near the root of the page. Pieces reference them by id and fall back to a flat colour without them. */
+export function PieceDefs() {
+  return <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true" focusable="false"><defs dangerouslySetInnerHTML={{ __html: PIECE_DEFS_MARKUP }} /></svg>;
+}
 
 /** A piece as an SVG group in a 45×45 box. */
 export function PieceG({ piece }: { piece: number }) {
@@ -20,9 +25,9 @@ export function PieceG({ piece }: { piece: number }) {
           case 'shade':
             return <path key={i} d={part.d} fill={p.shade} />;
           case 'hl':
-            return <path key={i} d={part.d} fill="none" stroke={p.hl} strokeWidth="1.1" strokeLinecap="round" />;
+            return <path key={i} d={part.d} fill="none" stroke={p.hl} strokeWidth="1.4" strokeLinecap="round" />;
           case 'line':
-            return <path key={i} d={part.d} fill="none" stroke={p.line} strokeWidth="0.9" strokeLinecap="round" />;
+            return <path key={i} d={part.d} fill="none" stroke={p.line} strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />;
           case 'eye':
             return <path key={i} d={part.d} fill={p.eye} />;
         }

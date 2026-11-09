@@ -67,6 +67,7 @@ export function validateSettings(v: unknown): Settings {
     sound: sanitizeSoundPrefs(v.sound),
     showLegalMoves: typeof v.showLegalMoves === 'boolean' ? v.showLegalMoves : d.showLegalMoves,
     showEvalBar: typeof v.showEvalBar === 'boolean' ? v.showEvalBar : d.showEvalBar,
+    haptics: typeof v.haptics === 'boolean' ? v.haptics : d.haptics,
     bot: {
       level: typeof bot.level === 'string' ? bot.level : d.bot.level,
       personality: typeof bot.personality === 'string' ? bot.personality : d.bot.personality,

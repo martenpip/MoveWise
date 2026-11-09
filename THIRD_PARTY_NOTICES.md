@@ -32,7 +32,7 @@ The MIT licence requires that the copyright notice and permission text travel wi
 
 ## Original to this project
 
-Chess rules engine, search engine, evaluation, board component, piece set ("Staunton", drawn from scratch as code in `src/ui/pieceShapes.ts`), Glicko-2 implementation (from the published algorithm description), opening list, logomark, service worker, styles and all copy.
+Chess rules engine, search engine, evaluation, board component, piece set ("Gloss", drawn from scratch as code in `src/ui/pieceShapes.ts`), Glicko-2 implementation (from the published algorithm description), opening list, logomark, service worker, styles and all copy.
 
 All sounds (`src/audio/recipes.ts`) are original: synthesised from oscillators and noise at run time, with no samples or recordings. Achievement badges are original SVG drawn in code (`src/ui/AchievementBadge.tsx`). No new dependencies were added in v0.2 or v0.3; Stockfish was added in Phase 1. The rating algorithm is Glickman's public method, implemented independently. Game Review (Phase 2, `src/review/`) adds no dependencies: its win-chance and move-accuracy formulas are the published Lichess formulas (constants only, implemented independently, no code copied), and its thresholds, tags and explanations are original.
 

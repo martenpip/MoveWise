@@ -246,6 +246,13 @@ export function SettingsPage() {
           <input type="checkbox" checked={settings.showEvalBar} onChange={(e) => updateSettings({ showEvalBar: e.target.checked })} />
           <span>Show engine evaluation bar in games</span>
         </label>
+        <label className="switch">
+          <input type="checkbox" checked={settings.haptics} onChange={(e) => updateSettings({ haptics: e.target.checked })} />
+          <span>Vibrate a little when a piece moves (phones only)</span>
+        </label>
+        <p className="muted small" style={{ margin: '0 0 0 2px' }}>
+          Works on Android phones that allow vibration. On iPhone it gives a light tap for your own moves only, and Apple does not guarantee it. Nothing happens on a computer.
+        </p>
       </section>
 
       <SoundSection />

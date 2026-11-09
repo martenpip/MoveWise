@@ -13,6 +13,8 @@ import { checkAchievements as syncStoredAchievements } from '../profile/achievem
 import { DEFAULT_SETTINGS, type Settings, type Store } from '../storage/types';
 import { AchievementBadge } from './AchievementBadge';
 import { Logo, NavIcon, type NavIconName } from './icons';
+import { setHapticsEnabled } from './haptics';
+import { PieceDefs } from './pieces';
 
 /* ----------------------------- Context ------------------------------ */
 
@@ -207,6 +209,7 @@ export function AppProvider({ store, initial, children }: { store: Store; initia
     };
     apply();
     root.dataset.board = settings.boardTheme;
+    setHapticsEnabled(settings.haptics);
     try {
       // Mirrored so the inline script in index.html can theme the very first paint.
       localStorage.setItem('mw-theme', settings.theme);
@@ -217,7 +220,7 @@ export function AppProvider({ store, initial, children }: { store: Store; initia
     const mq = matchMedia('(prefers-color-scheme: dark)');
     mq.addEventListener('change', apply);
     return () => mq.removeEventListener('change', apply);
-  }, [settings.theme, settings.boardTheme]);
+  }, [settings.theme, settings.boardTheme, settings.haptics]);
 
   useEffect(() => {
     const on = () => setOnline(true);
@@ -298,7 +301,7 @@ export function AppProvider({ store, initial, children }: { store: Store; initia
     };
     const onChange = (e: Event) => {
       const t = e.target;
-      if (!(t instanceof HTMLInputElement) || t.closest(NO_SOUND)) return;
+      if (!(t instanceof HTMLInputElement) || t.closest(NO_SOUND) || t.closest('[data-haptic]')) return;
       if (t.type === 'checkbox') playSound(t.checked ? 'toggleOn' : 'toggleOff');
       else if (t.type === 'radio') playSound('setting');
     };
@@ -406,6 +409,7 @@ export function Shell({ children }: { children: ReactNode }) {
 
   return (
     <div className="app">
+      <PieceDefs />
       <a href="#main" className="sr-only">
         Skip to content
       </a>

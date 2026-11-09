@@ -48,6 +48,9 @@ export function Board(props: BoardProps) {
   const [cursor, setCursor] = useState<number | null>(null);
   const [announce, setAnnounce] = useState('');
   const suppressAnim = useRef<string>('');
+  // The move whose slide has already played. A browser restarts a CSS animation when React re-inserts the element (it does so for
+  // pieces that did not move), so the slide class is removed when the animation ends and is never applied twice for one move.
+  const slidDone = useRef<string>('');
   const white = orientation === 'white';
 
   const pos = (sq: number) => {
@@ -268,7 +271,8 @@ export function Board(props: BoardProps) {
     const tx = dragging ? drag!.x - SQ / 2 : x;
     const ty = dragging ? drag!.y - SQ / 2 : y;
     let slide: { dx: number; dy: number } | null = null;
-    if (!dragging && lastMove && lastMove.to === sq && suppressAnim.current !== `${lastMove.from}-${lastMove.to}`) {
+    const moveKey = lastMove ? `${lastMove.from}-${lastMove.to}-${boardKey}` : '';
+    if (!dragging && lastMove && lastMove.to === sq && suppressAnim.current !== `${lastMove.from}-${lastMove.to}` && slidDone.current !== moveKey) {
       const from = pos(lastMove.from);
       slide = { dx: from.x - x, dy: from.y - y };
     }
@@ -278,6 +282,7 @@ export function Board(props: BoardProps) {
             otherwise replace the scale below and shrink the piece mid-slide. */}
         <g
           className={slide ? 'slide' : undefined}
+          onAnimationEnd={slide ? (e: { currentTarget: Element }) => { slidDone.current = moveKey; e.currentTarget.classList.remove('slide'); } : undefined}
           style={slide ? ({ '--dx': `${slide.dx}px`, '--dy': `${slide.dy}px` } as CSSProperties) : undefined}
         >
           <g transform={`scale(${SQ / 45})`}>
