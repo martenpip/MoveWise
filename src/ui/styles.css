@@ -518,6 +518,13 @@ textarea {
   gap: 24px;
   align-items: start;
 }
+/* Pages with a sized board: the board is as large as the screen height allows and the side cards take the remaining width (up to
+   a readable maximum), so a tablet in landscape has no empty gap between the board and the cards. */
+.game-layout:has(.board-and-eval) {
+  --bsize: max(280px, min(calc(100vh - 210px), calc(min(100vw, 1180px) - 40px - 24px - 340px)));
+  grid-template-columns: var(--bsize) minmax(340px, 560px);
+  justify-content: center;
+}
 .board-col {
   display: flex;
   flex-direction: column;
@@ -528,8 +535,7 @@ textarea {
   display: flex;
   gap: 10px;
   align-items: stretch;
-  width: min(100%, calc(100vh - 210px));
-  min-width: 280px;
+  width: var(--bsize, 100%);
 }
 .board-frame {
   flex: 1;
@@ -730,6 +736,11 @@ textarea {
   }
   .board-and-eval {
     width: 100%;
+  }
+  .game-layout:has(.board-and-eval) {
+    --bsize: 100%;
+    grid-template-columns: 1fr;
+    justify-content: stretch;
   }
 }
 /* Six navigation items: up to 1100px they become a bottom tab bar. */

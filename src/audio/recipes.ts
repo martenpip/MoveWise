@@ -3,8 +3,8 @@
  * licences to track, and nothing to cache for offline use. A recipe schedules nodes on any BaseAudioContext, so the
  * same code runs live (AudioContext) and in tests (OfflineAudioContext).
  *
- * Board sounds are meant to be a soft thump of a piece set down on a padded wooden board: a rounded low body, a quiet
- * wooden overtone and a muffled touch of felt. Captures are lower, longer and heavier. Pitched sounds (check, promotion, achievements) use soft bell/marimba partials, never raw beeps.
+ * Board sounds are meant to be a wooden piece set down on a wooden board: a crisp contact, a short wooden "tock" and a hollow thud of
+ * the board. Captures are lower, longer and heavier. Pitched sounds (check, promotion, achievements) use soft bell/marimba partials, never raw beeps.
  */
 import type { SoundKind } from './kinds';
 
@@ -125,51 +125,54 @@ function marimba(vc: Voice, at: number, freq: number, gain: number, tau: number)
 const pitch = (vc: Voice, f: number, amount = 0.05): number => f * (1 + vc.v * amount);
 
 /**
- * The board "thump": a piece set down on a padded wooden board. It is built to be soft and warm, not sharp:
- *  - a low rounded body that drops a little in pitch, with a slow-ish attack so there is no click at the start,
- *  - a quieter upper partial that gives it the wood (a phone speaker cannot play the lowest note, but it does play this),
- *  - a muffled contact noise, low-passed, as the felt touches the board,
- *  - a very quiet second note a moment later, as the piece settles, so each move lands with a small sense of weight.
- * `weight` scales loudness; `pitch` sets the brightness (lower = heavier); `body` is how much low resonance there is.
+ * The board "tock": a wooden piece set down on a wooden board, which is what a real move sounds like. Four short layers:
+ *  - a sharp, brief contact click (band-passed noise) where wood meets wood,
+ *  - three quickly dying wooden resonances at inharmonic ratios, which is what makes it sound like wood and not like a note,
+ *  - a short hollow thud of the board itself, low enough to feel but still audible on a phone,
+ *  - a tiny second tick a few milliseconds later, as the rim of the piece settles flat.
+ * `weight` scales loudness; `pitch` sets the brightness of the wood (lower = bigger, heavier piece); `body` is the board thud.
  */
 function knock(vc: Voice, o: { at?: number; weight: number; pitch: number; body?: number; knock?: number }): void {
   const at = o.at ?? 0;
   const w = o.weight;
-  const f0 = pitch(vc, o.pitch) * 0.4;
-  const body = (o.body ?? 0.22) * w;
-  tone(vc, { at, freq: f0, toFreq: f0 * 0.7, gain: body, tau: 0.05, attack: 0.006, len: 0.4 });
-  tone(vc, { at, freq: f0 * 2.1, toFreq: f0 * 1.9, gain: body * 0.7, tau: 0.03, attack: 0.005, len: 0.25 });
-  noise(vc, { at, type: 'lowpass', freq: pitch(vc, o.pitch) * 1.5, q: 0.5, gain: (o.knock ?? 0.5) * w * 0.5, tau: 0.014, attack: 0.005, len: 0.12 });
-  tone(vc, { at: at + 0.05, freq: f0 * 0.92, toFreq: f0 * 0.75, gain: body * 0.16, tau: 0.04, attack: 0.012, len: 0.3 });
+  const f = pitch(vc, o.pitch, 0.06);
+  const body = (o.body ?? 0.1) * w;
+  noise(vc, { at, type: 'bandpass', freq: f * 2.6, q: 0.9, gain: (o.knock ?? 0.6) * w * 0.55, tau: 0.0035, attack: 0.0006, len: 0.035 });
+  tone(vc, { at, freq: f * 0.9, toFreq: f * 0.84, gain: 0.5 * w, tau: 0.017, attack: 0.0006, len: 0.14 });
+  tone(vc, { at, freq: f * 1.46, gain: 0.34 * w, tau: 0.011, attack: 0.0006, len: 0.1 });
+  tone(vc, { at, freq: f * 2.31, gain: 0.16 * w, tau: 0.007, attack: 0.0006, len: 0.06 });
+  tone(vc, { at, freq: f * 0.19, toFreq: f * 0.15, gain: body, tau: 0.028, attack: 0.0015, len: 0.2 });
+  noise(vc, { at, type: 'lowpass', freq: 520, q: 0.6, gain: 0.14 * w, tau: 0.012, attack: 0.001, len: 0.08 });
+  noise(vc, { at: at + 0.017, type: 'bandpass', freq: f * 1.9, q: 1.4, gain: 0.12 * w, tau: 0.003, attack: 0.0006, len: 0.03 });
 }
 
 const R: Record<SoundKind, Recipe> = {
   /* ---------------------------- board ---------------------------- */
   move: (vc) => {
-    knock(vc, { weight: 0.8, pitch: 950 });
-    return 0.22;
+    knock(vc, { weight: 0.68, pitch: 1050 });
+    return 0.2;
   },
   capture: (vc) => {
     // Heavier and lower, with a second lighter tap as the taken piece is lifted away.
-    knock(vc, { weight: 1.2, pitch: 560, body: 0.34, knock: 0.5 });
+    knock(vc, { weight: 0.88, pitch: 520, body: 0.2, knock: 0.6 });
     noise(vc, { at: 0.012, type: 'lowpass', freq: 500, q: 0.8, gain: 0.12, tau: 0.05, len: 0.25 });
-    noise(vc, { at: 0.085, type: 'bandpass', freq: pitch(vc, 1250), q: 4, gain: 0.16, tau: 0.01, len: 0.1 });
+    noise(vc, { at: 0.085, type: 'bandpass', freq: pitch(vc, 1250), q: 4, gain: 0.09, tau: 0.01, len: 0.1 });
     return 0.3;
   },
   castle: (vc) => {
-    knock(vc, { weight: 0.8, pitch: 780, body: 0.22 });
-    knock(vc, { at: 0.115, weight: 0.7, pitch: 1000, body: 0.18 });
+    knock(vc, { weight: 0.8, pitch: 880 });
+    knock(vc, { at: 0.115, weight: 0.7, pitch: 1120 });
     return 0.3;
   },
   check: (vc) => {
-    knock(vc, { weight: 0.8, pitch: 860 });
+    knock(vc, { weight: 0.8, pitch: 960 });
     // A soft two-note warning: a bell falling a minor third, clearly "attention" but not an alarm.
     bell(vc, 0.03, 880, 0.2, 0.09);
     bell(vc, 0.15, 698.5, 0.2, 0.11);
     return 0.6;
   },
   checkmate: (vc) => {
-    knock(vc, { weight: 1.2, pitch: 520, body: 0.34, knock: 0.5 });
+    knock(vc, { weight: 0.88, pitch: 500, body: 0.2, knock: 0.6 });
     // A low, slowly fading bell (partials of a struck bar) under the final knock.
     tone(vc, { at: 0.02, freq: 174.6, gain: 0.34, tau: 0.42, len: 2.2 });
     tone(vc, { at: 0.02, freq: 174.6 * 2.01, gain: 0.16, tau: 0.26, len: 1.6 });
@@ -178,7 +181,7 @@ const R: Record<SoundKind, Recipe> = {
     return 1.6;
   },
   promotion: (vc) => {
-    knock(vc, { weight: 0.75, pitch: 900 });
+    knock(vc, { weight: 0.75, pitch: 1000 });
     // Three rising marimba notes: C5, E5, A5.
     marimba(vc, 0.07, 523.25, 0.26, 0.11);
     marimba(vc, 0.14, 659.25, 0.26, 0.11);

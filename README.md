@@ -59,7 +59,7 @@ npm run test:upgrade        # v0.5 to current IndexedDB upgrade (needs V05_DIR, 
 | Area | State | Notes |
 | --- | --- | --- |
 | Chess rules (legal moves, castling, en passant, promotion, draws, undo, SAN, FEN, PGN) | Done, tested | Own rules engine, verified against published perft counts |
-| Board (click, drag, touch, keyboard, legal-move dots, promotion picker, flip, 6 board themes) | Done | Original glossy SVG piece set ("Gloss"). One set so far |
+| Board (click, drag, touch, keyboard, legal-move dots, promotion picker, flip, 6 board themes) | Done | Original minimalist SVG piece set ("Flat"). One set so far |
 | Dark and light themes | Done | Dark is the default |
 | Play against bots | Done, tested | 25 levels, practice 100 to 900 and competitive 1000 to 2500. See [docs/bots.md](docs/bots.md) |
 | Play with Trainer | Done, tested in a browser | Always unranked. See [docs/trainer.md](docs/trainer.md) |

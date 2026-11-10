@@ -25,7 +25,7 @@ export function PieceG({ piece }: { piece: number }) {
           case 'shade':
             return <path key={i} d={part.d} fill={p.shade} />;
           case 'hl':
-            return <path key={i} d={part.d} fill="none" stroke={p.hl} strokeWidth="1.4" strokeLinecap="round" />;
+            return <path key={i} d={part.d} fill="none" stroke={p.hl} strokeWidth="1.2" strokeLinecap="round" />;
           case 'line':
             return <path key={i} d={part.d} fill="none" stroke={p.line} strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />;
           case 'eye':

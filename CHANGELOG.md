@@ -2,8 +2,13 @@
 
 ## 0.8.0
 
+Changes after the first look on a real tablet
+- Tablet layout: on a landscape tablet the board is as large as the screen height allows and the side cards now fill the width that is left, instead of leaving about 270 px of empty space between them. New browser test: `npm run test:e2e:tablet`.
+- New piece set, "Flat", replacing "Gloss": minimalist pieces with one flat colour, a thin outline and one quiet shaded half, no gradients. Each is recognised by its silhouette (ball-on-a-stem pawn, three-notch tower, horse head, slit mitre, five-pointed beaded crown, cross on a bell), so they stay distinguishable at small sizes. Original to MoveWise.
+- Sound: the piece-placement sound is rebuilt to resemble a wooden piece set down on a wooden board: a crisp contact click, a short wooden "tock" made of quickly dying inharmonic resonances, a hollow thud of the board and a tiny settling tick. Captures are lower and heavier. Measured, not yet judged by ear. See docs/sound-and-achievements.md.
+
 Changes after the first look on a real phone
-- New piece set, "Gloss": chunkier, rounded pieces with a heavy outline, a gradient body, a shaded side and a bright highlight. The silhouettes are original to MoveWise, not traced from or copied from any other set.
+- Piece set "Gloss": chunkier, rounded pieces with a gradient body (replaced by "Flat" in the tablet round above).
 - On a phone the moves now sit in one scrolling row directly under the board, with previous, next and flip buttons, so the game can be followed without scrolling. The full list stays in the side panel on larger screens.
 - Sound: the piece-placement sound is now a soft, warm thump instead of a sharp hollow knock (slower attack, lower and rounder, with a quiet wooden overtone so it still comes through a phone speaker). Measured, not yet judged by ear. See docs/sound-and-achievements.md.
 - Trainer on a phone: the "Before you play that move" warning, with Let me reconsider and Play the move anyway, now appears right under the board and is on screen without scrolling. New browser test: `npm run test:e2e:phone`.
