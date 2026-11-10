@@ -2,6 +2,11 @@
 
 ## 0.8.0
 
+Simpler screens, closer to what chess.com does
+- Play setup is now three big choices and one button: Game mode (Normal or With Trainer), Play as (White, Random or Black, shown with king pieces), and Opponent (Beginner, Easy, Medium, Hard, Expert, or an exact bot from the list). The Start game button stays on screen above the tab bar. Playing style and the long explanations moved into "More options". New browser test: `npm run test:e2e:setup`.
+- Fixed: a player whose saved opponent was an old name such as "casual" saw Bot 100 in the list but played Bot 1000. The list, the chips and the card now always agree, and new installs start on Bot 400.
+- Home: one big Play button, a Quick game link and four shortcuts (Puzzles, Learn, Review, Analysis). The suggestions show three items, and the three "progress" cards moved under a "Your progress" heading.
+
 Changes after the first look on a real tablet
 - Puzzles on a tablet: the whole board is now on screen (it used to be cut off at the bottom), and the board and the side cards fill the width like on the other pages.
 - The side cards now start level with the top of the board on Play, Puzzles, Analysis, Games and Review (they used to float a little above it).

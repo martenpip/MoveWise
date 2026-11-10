@@ -39,7 +39,7 @@ export const DEFAULT_SETTINGS: Settings = {
   showLegalMoves: true,
   showEvalBar: false,
   haptics: true,
-  bot: { level: 'casual', personality: 'balanced', color: 'white' },
+  bot: { level: 'r400', personality: 'balanced', color: 'white' },
   notebook: { autoSave: true },
   trainer: DEFAULT_TRAINER_PREFS,
 };

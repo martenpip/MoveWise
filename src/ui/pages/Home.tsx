@@ -7,7 +7,7 @@ import { useApp } from '../app';
 import { Avatar } from '../Avatar';
 import { Sparkline } from '../charts';
 import { useStoredData } from '../hooks';
-import { Logo } from '../icons';
+import { Logo, NavIcon } from '../icons';
 import { useAcademyData } from '../academyData';
 import { insightsFrom } from '../../notebook/insights';
 import { isDueToday, statusOf } from '../../notebook/srs';
@@ -145,17 +145,21 @@ export function HomePage() {
     <div className="stack">
       <section className="dash-head" aria-labelledby="h-greet">
         <div className="dash-main">
-          <div className="eyebrow">LEARN. PLAY. IMPROVE.</div>
           <h1 id="h-greet">{greeting(new Date().getHours())}, {data.profile.displayName}.</h1>
           <p className="lead">
             {model.allTime.n === 0
-              ? 'Your games, rating and progress will build up right here, on this device. Start with a game against a bot.'
+              ? 'Play a game against a bot to get started.'
               : `${model.allTime.n} ${model.allTime.n === 1 ? 'game' : 'games'} played · ${model.allTime.wins} won, ${model.allTime.draws} drawn, ${model.allTime.losses} lost.`}
           </p>
-          <div className="btn-row">
-            <a className="btn primary" href="#/play?quick=1">Quick play</a>
-            <a className="btn" href="#/play">Choose an opponent</a>
-            <a className="btn" href="#/analysis">Analysis board</a>
+          <div className="home-play">
+            <a className="btn primary big" href="#/play">Play</a>
+            <a className="home-quick" href="#/play?quick=1">Quick game</a>
+          </div>
+          <div className="home-tiles" role="group" aria-label="Where to go">
+            <a className="home-tile" href="#/puzzles"><NavIcon name="puzzles" /><span>Puzzles</span></a>
+            <a className="home-tile" href="#/academy"><NavIcon name="academy" /><span>Learn</span></a>
+            <a className="home-tile" href="#/games"><NavIcon name="games" /><span>Review</span></a>
+            <a className="home-tile" href="#/analysis"><NavIcon name="analysis" /><span>Analysis</span></a>
           </div>
         </div>
         <a className="rating-card" href="#/profile" aria-label="Open your profile">
@@ -178,33 +182,18 @@ export function HomePage() {
         </a>
       </section>
 
+
       {error === null && data.games.length === 0 && !current && (
         <p className="muted small hero-logo-note">
           <Logo size={20} /> MoveWise is free, ad-free and open source. No account, and it works without internet.
         </p>
       )}
 
-      <div className="grid-3" style={{ alignItems: 'start' }}>
-        <section className="card" aria-labelledby="h-practise" data-testid="home-practise">
-          <h2 id="h-practise">What should I practise?</h2>
-          <p>{practise.text}</p>
-          <a className="btn small" href={practise.href}>{practise.cta}</a>
-        </section>
-
-        <section className="card" aria-labelledby="h-improve" data-testid="home-improving">
-          <h2 id="h-improve">How am I improving?</h2>
-          <ul className="list">
-            {improving.map((t) => (
-              <li key={t}><span className="grow">{t}</span></li>
-            ))}
-          </ul>
-          <a className="link-arrow" href="#/profile">View profile <span aria-hidden="true">→</span></a>
-        </section>
-
+      <div className="home-cols">
         <section className="card" aria-labelledby="h-next" data-testid="home-next">
           <h2 id="h-next">What can I do now?</h2>
           <ul className="list">
-            {suggestions.slice(0, 4).map((s) => (
+            {suggestions.slice(0, 3).map((s) => (
               <li key={s.title}>
                 <div className="grow">
                   <b>{s.title}</b>
@@ -215,7 +204,6 @@ export function HomePage() {
             ))}
           </ul>
         </section>
-
         <section className="card" aria-labelledby="h-recent">
           <h2 id="h-recent">Recent games</h2>
           {recent.length === 0 ? (
@@ -241,7 +229,24 @@ export function HomePage() {
             </ul>
           )}
         </section>
+      </div>
 
+      <h2 className="home-sub">Your progress</h2>
+      <div className="grid-3" style={{ alignItems: 'start' }}>
+        <section className="card" aria-labelledby="h-practise" data-testid="home-practise">
+          <h2 id="h-practise">What should I practise?</h2>
+          <p>{practise.text}</p>
+          <a className="btn small" href={practise.href}>{practise.cta}</a>
+        </section>
+        <section className="card" aria-labelledby="h-improve" data-testid="home-improving">
+          <h2 id="h-improve">How am I improving?</h2>
+          <ul className="list">
+            {improving.map((t) => (
+              <li key={t}><span className="grow">{t}</span></li>
+            ))}
+          </ul>
+          <a className="link-arrow" href="#/profile">View profile <span aria-hidden="true">→</span></a>
+        </section>
         <section className="card" aria-labelledby="h-train">
           <h2 id="h-train">Training progress</h2>
           <dl className="kv">

@@ -3,7 +3,7 @@ import { replaySound, soundForMove } from '../../audio/moveSound';
 import { tapHaptic } from '../haptics';
 import { Game, describeEnd } from '../../chess/game';
 import { toPgn } from '../../chess/pgn';
-import { BLACK, WHITE, moveFrom, moveTo, movePromo, moveToUci, type Color } from '../../chess/types';
+import { BLACK, KING, WHITE, makePiece, moveFrom, moveTo, movePromo, moveToUci, type Color } from '../../chess/types';
 import { EngineCancelled } from '../../engine/client';
 import { COMPETITIVE_FROM, LEVELS, PERSONALITIES, STOCKFISH_FROM, findLevel, getLevel, getPersonality } from '../../engine/levels';
 import { WELCOME, botMoveText, resultText, threatText, warningText, yourMoveText } from '../../trainer/coach';
@@ -12,6 +12,7 @@ import type { CurrentGame, SavedGame } from '../../storage/types';
 import { summariseGame } from '../progress';
 import { useApp } from '../app';
 import { Board } from '../Board';
+import { PieceIcon } from '../pieces';
 import { useEngineEval, useMediaQuery } from '../hooks';
 import { useTrainer } from '../useTrainer';
 import { TrainerPanel, TrainerWarning, type PendingWarning } from './TrainerPanel';
@@ -38,7 +39,8 @@ export function PlayPage() {
   const [phase, setPhase] = useState<'loading' | 'setup' | 'game'>('loading');
   const [resume, setResume] = useState<CurrentGame | null>(null);
   const [colorChoice, setColorChoice] = useState<ColorChoice>(settings.bot.color);
-  const [levelId, setLevelId] = useState(settings.bot.level);
+  // Old saved settings can hold a legacy name such as "casual"; the list and the chips only know the numbered bots.
+  const [levelId, setLevelId] = useState(() => findLevel(settings.bot.level)?.id ?? 'r400');
   const [personalityId, setPersonalityId] = useState(settings.bot.personality);
   /** Chosen on the setup screen. */
   const [modeChoice, setModeChoice] = useState<'normal' | 'trainer'>('normal');
@@ -453,71 +455,103 @@ export function PlayPage() {
   if (phase === 'setup') {
     const sel = getLevel(levelId);
     const pers = getPersonality(personalityId);
+    const rated = modeChoice === 'normal' && sel.category === 'competitive';
+    const strengths: Array<{ label: string; id: string }> = [
+      { label: 'Beginner', id: 'r400' },
+      { label: 'Easy', id: 'r700' },
+      { label: 'Medium', id: 'r1000' },
+      { label: 'Hard', id: 'r1500' },
+      { label: 'Expert', id: 'r2000' },
+    ];
     return (
-      <div className="stack" style={{ maxWidth: 720, margin: '0 auto' }}>
+      <div className="stack play-setup" style={{ maxWidth: 620, margin: '0 auto' }}>
         <h1>Play</h1>
         {resume && (
-          <div className="notice ok">
-            <b>You have a game in progress.</b> {resume.uciMoves.length} moves played against{' '}
-            {getLevel(resume.botLevel).name}{resume.mode === 'trainer' ? ', with the Trainer' : ''}.
-            <div className="btn-row" style={{ marginTop: 10 }}>
-              <button className="btn primary" type="button" onClick={resumeGame}>
-                Resume game
-              </button>
+          <div className="notice ok resume-notice">
+            <div>
+              <b>Game in progress</b>
+              <div className="muted small">{resume.uciMoves.length} moves against {getLevel(resume.botLevel).name}{resume.mode === 'trainer' ? ' · Trainer' : ''}</div>
             </div>
+            <button className="btn primary" type="button" onClick={resumeGame}>
+              Resume game
+            </button>
           </div>
         )}
-        <div className="card">
-          <div className="field">
-            <span className="label" id="mode-label">How do you want to play?</span>
-            <div className="mode-pick" role="group" aria-labelledby="mode-label">
-              <button type="button" className="mode-card" aria-pressed={modeChoice === 'normal'} onClick={() => setModeChoice('normal')} data-testid="mode-normal">
-                <b>Normal game</b>
-                <span>Just the game, with no interruptions. Counts toward your MoveWise Rating when you play a competitive bot (1000 and above).</span>
+        <section className="setup-block" aria-labelledby="mode-label">
+          <h2 className="setup-label" id="mode-label">Game mode</h2>
+          <div className="mode-pick" role="group" aria-labelledby="mode-label">
+            <button type="button" className="mode-card" aria-pressed={modeChoice === 'normal'} onClick={() => setModeChoice('normal')} data-testid="mode-normal">
+              <b>Normal</b>
+              <span>Just play. Counts toward your rating against bots 1000 and up.</span>
+            </button>
+            <button type="button" className="mode-card" aria-pressed={modeChoice === 'trainer'} onClick={() => setModeChoice('trainer')} data-testid="mode-trainer">
+              <b>With Trainer</b>
+              <span>A coach warns you before big mistakes. Always unranked.</span>
+            </button>
+          </div>
+        </section>
+        <section className="setup-block" aria-labelledby="color-label">
+          <h2 className="setup-label" id="color-label">Play as</h2>
+          <div className="side-pick" role="group" aria-labelledby="color-label">
+            {(['white', 'random', 'black'] as ColorChoice[]).map((c) => (
+              <button key={c} type="button" className="side-card" aria-pressed={colorChoice === c} onClick={() => setColorChoice(c)} data-testid={`side-${c}`}>
+                {c === 'random' ? (
+                  <span className="side-random" aria-hidden="true">
+                    <PieceIcon piece={makePiece(KING, WHITE)} size={30} />
+                    <PieceIcon piece={makePiece(KING, BLACK)} size={30} />
+                  </span>
+                ) : (
+                  <PieceIcon piece={makePiece(KING, c === 'white' ? WHITE : BLACK)} size={46} />
+                )}
+                <span>{c === 'random' ? 'Random' : c === 'white' ? 'White' : 'Black'}</span>
               </button>
-              <button type="button" className="mode-card" aria-pressed={modeChoice === 'trainer'} onClick={() => setModeChoice('trainer')} data-testid="mode-trainer">
-                <b>Play with Trainer</b>
-                <span>A calm coach checks your moves, warns you before a serious blunder and explains the important moments. Always unranked: kept as practice.</span>
+            ))}
+          </div>
+        </section>
+        <section className="setup-block" aria-labelledby="opp-label">
+          <h2 className="setup-label" id="opp-label">Opponent</h2>
+          <div className="strength-pick" role="group" aria-label="Quick choice of difficulty">
+            {strengths.map((x) => (
+              <button key={x.id} type="button" className="chip" aria-pressed={levelId === x.id} onClick={() => setLevelId(x.id)}>
+                {x.label}
               </button>
+            ))}
+          </div>
+          <div className="opp-card">
+            <div className="opp-name">
+              <b>{sel.name}</b>
+              <span className={`badge ${rated ? 'win' : ''}`}>{rated ? 'Rated' : 'Practice'}</span>
             </div>
+            <div className="muted small" data-testid="level-info">About {sel.rating}. {sel.how}</div>
+            <label className="opp-select" htmlFor="level">
+              <span className="muted small">Pick an exact opponent</span>
+              <select id="level" value={levelId} onChange={(e) => setLevelId(e.target.value)} data-testid="level-select">
+                <optgroup label="Practice bots (100 to 900): never change your rating">
+                  {LEVELS.filter((l) => l.category === 'practice').map((l) => (
+                    <option key={l.id} value={l.id}>{l.name}</option>
+                  ))}
+                </optgroup>
+                <optgroup label="Competitive bots (1000 to 2500): count toward your rating">
+                  {LEVELS.filter((l) => l.category === 'competitive').map((l) => (
+                    <option key={l.id} value={l.id}>{l.name}</option>
+                  ))}
+                </optgroup>
+              </select>
+            </label>
           </div>
-          <div className="field">
-            <span className="label" id="color-label">
-              You play
-            </span>
-            <div className="seg" role="group" aria-labelledby="color-label">
-              {(['white', 'black', 'random'] as ColorChoice[]).map((c) => (
-                <button key={c} type="button" aria-pressed={colorChoice === c} onClick={() => setColorChoice(c)}>
-                  {c[0]!.toUpperCase() + c.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="field">
-            <label htmlFor="level">Opponent</label>
-            <select id="level" value={levelId} onChange={(e) => setLevelId(e.target.value)} data-testid="level-select">
-              <optgroup label="Practice bots (100 to 900): never change your rating">
-                {LEVELS.filter((l) => l.category === 'practice').map((l) => (
-                  <option key={l.id} value={l.id}>{l.name}</option>
-                ))}
-              </optgroup>
-              <optgroup label="Competitive bots (1000 to 2500): count toward your rating">
-                {LEVELS.filter((l) => l.category === 'competitive').map((l) => (
-                  <option key={l.id} value={l.id}>{l.name}</option>
-                ))}
-              </optgroup>
-            </select>
-            <span className="muted small" data-testid="level-info">
-              About {sel.rating} on the MoveWise bot scale (approximate). {sel.how}
-            </span>
-            <span className="muted small" data-testid="level-category">
-              {modeChoice === 'trainer'
-                ? 'With the Trainer this game is practice and will not change your rating.'
-                : sel.category === 'practice'
-                  ? 'Practice bot: this game will not change your rating.'
-                  : 'Competitive bot: this game counts toward your MoveWise Rating if you play it through without take-backs.'}
-            </span>
-          </div>
+          <p className="muted small" data-testid="level-category">
+            {modeChoice === 'trainer'
+              ? 'With the Trainer this game is practice and will not change your rating.'
+              : sel.category === 'practice'
+                ? 'Practice bot: this game will not change your rating.'
+                : 'Competitive bot: this game counts toward your MoveWise Rating if you play it through without take-backs.'}
+          </p>
+        </section>
+        <button className="btn primary big start-btn" type="button" onClick={startNew}>
+          Start game
+        </button>
+        <details className="more-options">
+          <summary>More options</summary>
           <div className="field">
             <label htmlFor="pers">Playing style</label>
             <select id="pers" value={personalityId} onChange={(e) => setPersonalityId(e.target.value)}>
@@ -528,17 +562,13 @@ export function PlayPage() {
               ))}
             </select>
             <span className="muted small">
-              {pers.blurb} Styles are small shifts in what the engine values — they nudge its choices, they don’t make it
-              human.
+              {pers.blurb} Styles are small shifts in what the engine values — they nudge its choices, they don’t make it human.
             </span>
           </div>
           <p className="muted small">
             Everything runs on this device. Bots below {STOCKFISH_FROM} use MoveWise’s built-in engine; from {STOCKFISH_FROM} the opponent is Stockfish with its strength limiter, which makes it weaker but not human-like. Bots below {COMPETITIVE_FROM} are practice only. The ratings are approximate and are explained in your Profile.
           </p>
-          <button className="btn primary" type="button" onClick={startNew}>
-            Start game
-          </button>
-        </div>
+        </details>
       </div>
     );
   }

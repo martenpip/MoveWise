@@ -2308,3 +2308,60 @@ h2.h3-look { font-size: 1.05rem; }
   background: var(--surface-2, rgba(255, 255, 255, 0.08));
   border: 1px solid var(--line);
 }
+
+/* ---------- Play setup: simple, big choices ---------- */
+.play-setup { gap: 18px; }
+.play-setup h1 { margin: 0; }
+.setup-block { display: grid; gap: 10px; }
+.setup-label { font-family: inherit; font-size: 0.95rem; font-weight: 700; margin: 0; color: var(--muted); letter-spacing: 0.02em; }
+.play-setup .mode-card { padding: 14px; gap: 4px; min-height: 84px; align-content: start; }
+.play-setup .mode-card[aria-pressed='true'] b::after { content: none; }
+.play-setup .mode-pick { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 560px) { .play-setup .mode-pick { grid-template-columns: repeat(2, minmax(0, 1fr)); } .play-setup .mode-card span { font-size: 0.8rem; } }
+.side-pick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.side-card {
+  font: inherit; font-weight: 700; display: grid; justify-items: center; gap: 4px; padding: 12px 6px 10px; cursor: pointer;
+  background: var(--surface); color: var(--text); border: 1px solid var(--line); border-radius: var(--radius-sm); min-height: 88px;
+}
+.side-card[aria-pressed='true'] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: var(--surface-2); }
+.side-random { display: flex; align-items: center; justify-content: center; height: 46px; }
+.side-random svg:first-child { margin-right: -8px; }
+.strength-pick { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip {
+  font: inherit; font-weight: 600; padding: 8px 14px; min-height: 40px; cursor: pointer; border-radius: 999px;
+  background: var(--surface); color: var(--text); border: 1px solid var(--line);
+}
+.chip[aria-pressed='true'] { border-color: var(--accent); background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--accent); }
+.opp-card { display: grid; gap: 6px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); }
+.opp-name { display: flex; align-items: center; gap: 10px; font-size: 1.1rem; }
+.opp-select { display: grid; gap: 4px; margin-top: 4px; }
+.opp-select select { min-height: 44px; }
+.btn.big { width: 100%; min-height: 56px; font-size: 1.15rem; justify-content: center; }
+.more-options { border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 4px 14px; background: var(--surface); }
+.more-options summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-weight: 600; }
+.more-options[open] { padding-bottom: 14px; }
+.resume-notice { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0; }
+
+.chip { padding: 8px 11px; font-size: 0.95rem; }
+.strength-pick { gap: 6px; }
+@media (max-width: 1100px) {
+  /* The Start button stays on screen, just above the bottom tab bar, however long the page is. */
+  .start-btn { position: sticky; bottom: calc(74px + env(safe-area-inset-bottom)); z-index: 5; box-shadow: 0 6px 18px rgb(0 0 0 / 0.35); }
+}
+
+/* ---------- Home: one clear action, then a few simple shortcuts ---------- */
+.home-play { display: grid; gap: 10px; max-width: 360px; }
+.home-quick { justify-self: start; color: var(--muted); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; min-height: 44px; display: inline-flex; align-items: center; }
+.home-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.home-tile {
+  display: grid; justify-items: center; gap: 6px; padding: 16px 8px; text-decoration: none; font-weight: 700;
+  background: var(--surface); color: var(--text); border: 1px solid var(--line); border-radius: var(--radius-sm); min-height: 84px;
+}
+.home-tile svg { width: 28px; height: 28px; color: var(--accent); }
+.home-tile:hover { background: var(--surface-2); }
+.home-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.home-sub { font-size: 1.1rem; margin: 8px 0 0; color: var(--muted); }
+@media (max-width: 760px) { .home-cols { grid-template-columns: minmax(0, 1fr); } }
+
+.home-tiles { margin-top: 14px; }
+@media (max-width: 760px) { .rating-card p.muted, .rating-card .link-arrow { display: none; } .rating-card { padding: 12px 14px; } }
