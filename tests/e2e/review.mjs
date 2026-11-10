@@ -99,7 +99,16 @@ try {
     // Like chess.com: a verdict badge on the piece's square, a coach line above the board, and a green arrow for the engine's move.
     await page.waitForSelector('svg.board g.board-badge.cls-blunder');
     assert((await page.locator('[data-testid="review-bubble"]').innerText()).includes('Nf6 is a blunder'), 'the coach line should say that Nf6 is a blunder');
+    // The engine's move is drawn on the position it was chosen in (before the move), never on the position after it.
+    assert((await page.locator('svg.board g.board-arrow').count()) === 0, 'no arrow should be drawn on the position after the move');
+    const after = await page.locator('svg.board g.piece').count();
+    await page.click('[data-testid="review-show-best"]');
     await page.waitForSelector('svg.board g.board-arrow.best');
+    assert((await page.locator('[data-testid="review-bubble"]').innerText()).includes('Best was g6'), 'the coach line should name the best move');
+    assert((await page.locator('svg.board g.board-badge').count()) === 0, 'no verdict badge while the best move is shown');
+    await page.click('[data-testid="review-show-best"]');
+    await page.waitForSelector('svg.board g.board-badge.cls-blunder');
+    assert((await page.locator('svg.board g.piece').count()) === after, 'back on the played position');
     const tb = await page.locator('svg.board').boundingBox();
     const ts = await page.locator('.game-layout').evaluate((l) => l.lastElementChild.getBoundingClientRect().top);
     assert(Math.abs(ts - tb.y) <= 2, `the side cards should start level with the top of the board (${Math.round(ts)} vs ${Math.round(tb.y)})`);

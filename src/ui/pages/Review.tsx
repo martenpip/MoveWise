@@ -129,13 +129,9 @@ export function ReviewPage({ id }: { id: string }) {
   const [level, setLevel] = useState<ExplainLevel>(loadLevel);
   const [ply, setPly] = useState(0);
   const [flipped, setFlipped] = useState(false);
-  const [showArrows, setShowArrows] = useState(() => {
-    try {
-      return localStorage.getItem('mw-review-arrows') !== 'off';
-    } catch {
-      return true;
-    }
-  });
+  // The ply for which the engine's move is being shown. It is drawn on the position BEFORE the move was played, because that is the
+  // position the engine chose it in; on the position after, the arrow can point at a move that is not even possible.
+  const [showBestAt, setShowBestAt] = useState<number | null>(null);
   const [variation, setVariation] = useState<Variation | null>(null);
   const [tab, setTab] = useState<'summary' | 'move' | 'moves'>('summary');
   const [announce, setAnnounce] = useState('');
@@ -270,6 +266,7 @@ export function ReviewPage({ id }: { id: string }) {
       }
       plyRef.current = target;
       setPly(target);
+      setShowBestAt(null);
       setVariation(null);
       if (target > 0) setTab((t) => (t === 'summary' ? 'move' : t));
     },
@@ -409,22 +406,23 @@ export function ReviewPage({ id }: { id: string }) {
 
   /* ----- ready ----- */
   const current: PlyAnalysis | null = ply > 0 ? analysis.plies[ply - 1]! : null;
+  const shown: ShownClass | null = current ? shownClass(current) : null;
+  const weak = !!current && (current.cls === 'inaccuracy' || current.cls === 'mistake' || current.cls === 'blunder');
+  const canShowBest = !variation && weak && !!current!.best && current!.best.uci !== current!.uci;
+  const showingBest = canShowBest && showBestAt === ply;
   const view: PosView = (() => {
     if (variation) {
       const r = fenAfterSteps(variation.line, variation.step);
       return posView(r.fen, variation.step === 0 ? variation.baseLast : r.last);
     }
+    if (showingBest) return posView(current!.fenBefore, ply > 1 ? analysis.plies[ply - 2]!.uci : null);
     return posView(ply === 0 ? record.startFen : current!.fenAfter, current ? current.uci : null);
   })();
   const nextArrow = variation && variation.line.uci[variation.step] ? variation.line.uci[variation.step]! : null;
-  const shown: ShownClass | null = current ? shownClass(current) : null;
-  const weak = current && (current.cls === 'inaccuracy' || current.cls === 'mistake' || current.cls === 'blunder');
-  // After a weak move, a green arrow shows the engine's move, as in chess.com's review. While previewing a line, the line's own arrow is shown.
-  const bestUci = !variation && weak && showArrows && current!.best && current!.best.uci !== current!.uci ? current!.best.uci : null;
-  const arrowUci = nextArrow ?? bestUci;
+  const arrowUci = nextArrow ?? (showingBest ? current!.best!.uci : null);
   const arrows = arrowUci ? [{ from: parseSquare(arrowUci.slice(0, 2)), to: parseSquare(arrowUci.slice(2, 4)), tone: 'best' as const }] : [];
-  const badge = !variation && current && shown && hasBadge(shown) ? { sq: current.played.to, cls: shown, glyph: SHOWN_GLYPH[shown] } : null;
-  const evalNow = review.positions[ply]!;
+  const badge = !variation && !showingBest && current && shown && hasBadge(shown) ? { sq: current.played.to, cls: shown, glyph: SHOWN_GLYPH[shown] } : null;
+  const evalNow = review.positions[showingBest ? ply - 1 : ply]!;
   const topColor: Color = flipped ? WHITE : 1;
   const bottomColor: Color = topColor === WHITE ? 1 : WHITE;
   const nameOf = (c: Color) => (c === WHITE ? record.white : record.black);
@@ -453,9 +451,9 @@ export function ReviewPage({ id }: { id: string }) {
               <>
                 <span className={`rv-bub-icon cls-${shown}`} aria-hidden="true">{SHOWN_GLYPH[shown]}</span>
                 <div className="rv-bub-text">
-                  <b>{current.san} {SHOWN_SENTENCE[shown]}</b>
+                  <b>{showingBest ? `Best was ${current.best!.san}` : `${current.san} ${SHOWN_SENTENCE[shown]}`}</b>
                   <span className="rv-bub-sub">
-                    {weak && current.best && current.best.uci !== current.uci ? `The best move was ${current.best.san}.` : shown === 'brilliant' ? 'You gave up material for a stronger position.' : shown === 'best' ? 'The engine’s top choice.' : shown === 'good' ? 'Close to the best move.' : ''}
+                    {showingBest ? 'This is the position before your move.' : weak && current.best && current.best.uci !== current.uci ? `The best move was ${current.best.san}.` : shown === 'brilliant' ? 'You gave up material for a stronger position.' : shown === 'best' ? 'The engine’s top choice.' : shown === 'good' ? 'Close to the best move.' : ''}
                   </span>
                 </div>
                 <span className="rv-pill" aria-label={`Evaluation ${formatEval(evalNow)}`}>{formatEval(evalNow)}</span>
@@ -508,22 +506,11 @@ export function ReviewPage({ id }: { id: string }) {
             <button className="btn small" type="button" onClick={() => jumpCritical(-1)} disabled={!critical.length}>◀ Key moment</button>
             <button className="btn small" type="button" onClick={() => jumpCritical(1)} disabled={!critical.length}>Key moment ▶</button>
             <button className="btn small" type="button" onClick={() => setFlipped((f) => !f)}>Flip</button>
-            <button
-              className="btn small"
-              type="button"
-              aria-pressed={showArrows}
-              onClick={() => {
-                const next = !showArrows;
-                setShowArrows(next);
-                try {
-                  localStorage.setItem('mw-review-arrows', next ? 'on' : 'off');
-                } catch {
-                  /* the choice then lasts for this visit only */
-                }
-              }}
-            >
-              Best-move arrow: {showArrows ? 'on' : 'off'}
-            </button>
+            {canShowBest && (
+              <button className="btn small primary" type="button" data-testid="review-show-best" aria-pressed={showingBest} onClick={() => setShowBestAt(showingBest ? null : ply)}>
+                {showingBest ? 'Back to the move' : 'Show best move'}
+              </button>
+            )}
           </div>
         )}
 
