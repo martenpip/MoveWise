@@ -23,7 +23,7 @@ import { describeMove, formatLine } from '../../review/facts';
 import { useApp } from '../app';
 import { Board } from '../Board';
 import { useLibrary, usePuzzleData } from '../puzzleData';
-import { newId } from '../shared';
+import { newId, AlignSideToBoard } from '../shared';
 
 export type SolveSource =
   | { kind: 'train'; mode: TrainMode; theme?: string; /** Only puzzles in which MoveWise itself found the theme's pattern. */ confirmed?: boolean }
@@ -534,6 +534,7 @@ export function PuzzleSolve({ source }: { source: SolveSource }) {
 
   return (
     <div className="game-layout">
+      <AlignSideToBoard />
       <div className="board-col">
         <a href={isRush ? '#/puzzles' : '#/puzzles'} className="small">← Puzzles</a>
         {isRush && rush && (
@@ -544,6 +545,7 @@ export function PuzzleSolve({ source }: { source: SolveSource }) {
             <button className="btn small" type="button" onClick={() => void finishRush()}>End</button>
           </div>
         )}
+        <div className="board-and-eval">
         <div className="board-frame pz-board">
           <Board
             board={view.board}
@@ -561,6 +563,7 @@ export function PuzzleSolve({ source }: { source: SolveSource }) {
             highlights={highlights}
             ariaLabel={`Puzzle board. ${turnWord} to move. Move ${Math.min(step, total)} of ${total}.`}
           />
+        </div>
         </div>
         {finished && replay !== null && (
           <div className="btn-row" role="group" aria-label="Replay the solution">

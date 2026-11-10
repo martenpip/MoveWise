@@ -11,6 +11,7 @@ import { CLASS_LABEL, EXPLAIN_LEVELS, TAG_LABEL, explainPly, type ExplainLevel }
 import { describeMove, formatLine, type Line } from '../../review/facts';
 import { formatEval, pct, plural } from '../../review/format';
 import { saveReview } from '../../review/persist';
+import { SHOWN_GLYPH, SHOWN_LABEL, SHOWN_SENTENCE, hasBadge, shownClass, type ShownClass } from '../../review/shown';
 import { newReview, progressOf, runReview } from '../../review/runner';
 import { BLUNDER_AT, INACCURACY_AT, MISTAKE_AT } from '../../review/score';
 import { summarise, type GameSummary, type Insight } from '../../review/summary';
@@ -21,7 +22,7 @@ import { AcademySuggestions } from './AcademySuggestions';
 import { Board } from '../Board';
 import { ReviewGraph } from '../ReviewGraph';
 import { NotebookSummary, SaveMoveToNotebook } from './ReviewPractice';
-import { CapturedRow, EvalBar, formatDate } from '../shared';
+import { CapturedRow, EvalBar, formatDate, AlignSideToBoard } from '../shared';
 
 /* ------------------------------ small helpers ------------------------------ */
 
@@ -44,10 +45,10 @@ function saveLevel(l: ExplainLevel): void {
 
 const GLYPH: Record<MoveClass, string> = { best: '★', good: '✓', inaccuracy: '?!', mistake: '?', blunder: '??', forced: '•' };
 
-function ClassBadge({ cls }: { cls: MoveClass }) {
+function ClassBadge({ cls }: { cls: ShownClass }) {
   return (
     <span className={`rv-badge cls-${cls}`}>
-      <span aria-hidden="true">{GLYPH[cls]}</span> {CLASS_LABEL[cls]}
+      <span aria-hidden="true">{SHOWN_GLYPH[cls]}</span> {SHOWN_LABEL[cls]}
     </span>
   );
 }
@@ -128,6 +129,13 @@ export function ReviewPage({ id }: { id: string }) {
   const [level, setLevel] = useState<ExplainLevel>(loadLevel);
   const [ply, setPly] = useState(0);
   const [flipped, setFlipped] = useState(false);
+  const [showArrows, setShowArrows] = useState(() => {
+    try {
+      return localStorage.getItem('mw-review-arrows') !== 'off';
+    } catch {
+      return true;
+    }
+  });
   const [variation, setVariation] = useState<Variation | null>(null);
   const [tab, setTab] = useState<'summary' | 'move' | 'moves'>('summary');
   const [announce, setAnnounce] = useState('');
@@ -409,7 +417,13 @@ export function ReviewPage({ id }: { id: string }) {
     return posView(ply === 0 ? record.startFen : current!.fenAfter, current ? current.uci : null);
   })();
   const nextArrow = variation && variation.line.uci[variation.step] ? variation.line.uci[variation.step]! : null;
-  const arrows = nextArrow ? [{ from: parseSquare(nextArrow.slice(0, 2)), to: parseSquare(nextArrow.slice(2, 4)), tone: 'best' as const }] : [];
+  const shown: ShownClass | null = current ? shownClass(current) : null;
+  const weak = current && (current.cls === 'inaccuracy' || current.cls === 'mistake' || current.cls === 'blunder');
+  // After a weak move, a green arrow shows the engine's move, as in chess.com's review. While previewing a line, the line's own arrow is shown.
+  const bestUci = !variation && weak && showArrows && current!.best && current!.best.uci !== current!.uci ? current!.best.uci : null;
+  const arrowUci = nextArrow ?? bestUci;
+  const arrows = arrowUci ? [{ from: parseSquare(arrowUci.slice(0, 2)), to: parseSquare(arrowUci.slice(2, 4)), tone: 'best' as const }] : [];
+  const badge = !variation && current && shown && hasBadge(shown) ? { sq: current.played.to, cls: shown, glyph: SHOWN_GLYPH[shown] } : null;
   const evalNow = review.positions[ply]!;
   const topColor: Color = flipped ? WHITE : 1;
   const bottomColor: Color = topColor === WHITE ? 1 : WHITE;
@@ -429,9 +443,28 @@ export function ReviewPage({ id }: { id: string }) {
 
   return (
     <div className="game-layout">
+      <AlignSideToBoard />
       <h1 className="sr-only">{`Review of ${record.white} against ${record.black}`}</h1>
       <div className="board-col">
         <a href={`#/games/${record.id}`} className="small">← Back to the game</a>
+        {!variation && (
+          <div className="rv-bubble" data-testid="review-bubble" role="status">
+            {current && shown ? (
+              <>
+                <span className={`rv-bub-icon cls-${shown}`} aria-hidden="true">{SHOWN_GLYPH[shown]}</span>
+                <div className="rv-bub-text">
+                  <b>{current.san} {SHOWN_SENTENCE[shown]}</b>
+                  <span className="rv-bub-sub">
+                    {weak && current.best && current.best.uci !== current.uci ? `The best move was ${current.best.san}.` : shown === 'brilliant' ? 'You gave up material for a stronger position.' : shown === 'best' ? 'The engine’s top choice.' : shown === 'good' ? 'Close to the best move.' : ''}
+                  </span>
+                </div>
+                <span className="rv-pill" aria-label={`Evaluation ${formatEval(evalNow)}`}>{formatEval(evalNow)}</span>
+              </>
+            ) : (
+              <div className="rv-bub-text"><b>Start of the game</b><span className="rv-bub-sub">Use the arrows to step through the moves.</span></div>
+            )}
+          </div>
+        )}
         {strip(topColor)}
         <div className="board-and-eval">
           <EvalBar cp={variation ? null : evalNow.cp} mate={variation ? null : evalNow.mate} flipped={flipped} />
@@ -449,7 +482,8 @@ export function ReviewPage({ id }: { id: string }) {
               showLegalMoves={settings.showLegalMoves}
               promoColor={view.turn}
               arrows={arrows}
-              ariaLabel={variation ? `Preview of ${variation.label}, step ${variation.step} of ${variation.line.uci.length}` : `Review of ${record.white} versus ${record.black}, move ${ply} of ${total}${current ? `, ${current.san}, ${CLASS_LABEL[current.cls]}` : ''}`}
+              badge={badge}
+              ariaLabel={variation ? `Preview of ${variation.label}, step ${variation.step} of ${variation.line.uci.length}` : `Review of ${record.white} versus ${record.black}, move ${ply} of ${total}${current ? `, ${current.san}, ${SHOWN_LABEL[shownClass(current)]}` : ''}`}
             />
           </div>
         </div>
@@ -474,6 +508,22 @@ export function ReviewPage({ id }: { id: string }) {
             <button className="btn small" type="button" onClick={() => jumpCritical(-1)} disabled={!critical.length}>◀ Key moment</button>
             <button className="btn small" type="button" onClick={() => jumpCritical(1)} disabled={!critical.length}>Key moment ▶</button>
             <button className="btn small" type="button" onClick={() => setFlipped((f) => !f)}>Flip</button>
+            <button
+              className="btn small"
+              type="button"
+              aria-pressed={showArrows}
+              onClick={() => {
+                const next = !showArrows;
+                setShowArrows(next);
+                try {
+                  localStorage.setItem('mw-review-arrows', next ? 'on' : 'off');
+                } catch {
+                  /* the choice then lasts for this visit only */
+                }
+              }}
+            >
+              Best-move arrow: {showArrows ? 'on' : 'off'}
+            </button>
           </div>
         )}
 
@@ -831,7 +881,7 @@ function MovePanel({
   return (
     <section className="card" aria-labelledby="h-rv-move">
       <h2 id="h-rv-move" style={{ marginBottom: 6 }}>
-        <span className="rv-movename">{moveName(plyAnalysis)}</span> <ClassBadge cls={plyAnalysis.cls} />
+        <span className="rv-movename">{moveName(plyAnalysis)}</span> <ClassBadge cls={shownClass(plyAnalysis)} />
       </h2>
       <h3 className="rv-headline-move" data-testid="review-move-headline">{ex.headline}</h3>
       {ex.paragraphs.map((p, i) => <p key={i}>{p}</p>)}
@@ -865,14 +915,15 @@ function MovePanel({
 
 function ReviewMoveList({ plies, current, onSelect }: { plies: PlyAnalysis[]; current: number; onSelect: (ply: number) => void }) {
   const mark = (p: PlyAnalysis) => {
+    if (p.brilliant) return SHOWN_GLYPH.brilliant;
     if (p.cls === 'inaccuracy' || p.cls === 'mistake' || p.cls === 'blunder') return GLYPH[p.cls];
     if (p.tags.includes('found-mate') || p.tags.includes('found-tactic')) return GLYPH.best;
     return '';
   };
   const cell = (p: PlyAnalysis) => (
-    <button key={`m${p.ply}`} type="button" aria-current={current === p.ply} aria-label={`${moveName(p)}, ${CLASS_LABEL[p.cls]}`} onClick={() => onSelect(p.ply)}>
+    <button key={`m${p.ply}`} type="button" aria-current={current === p.ply} aria-label={`${moveName(p)}, ${SHOWN_LABEL[shownClass(p)]}`} onClick={() => onSelect(p.ply)}>
       {p.san}
-      {mark(p) && <span className={`rv-glyph cls-${p.cls === 'best' ? 'best' : p.cls}`} aria-hidden="true"> {mark(p)}</span>}
+      {mark(p) && <span className={`rv-glyph cls-${p.brilliant ? 'brilliant' : p.cls === 'best' ? 'best' : p.cls}`} aria-hidden="true"> {mark(p)}</span>}
     </button>
   );
   const rows = [];

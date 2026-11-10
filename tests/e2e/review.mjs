@@ -96,6 +96,14 @@ try {
     const t = await page.locator('aside').innerText();
     assert(t.includes('Qxf7#') || t.includes('checkmate'), 'the explanation should mention the mate');
     assert(t.includes(`Evaluated by ${SF}`), 'the engine note is missing');
+    // Like chess.com: a verdict badge on the piece's square, a coach line above the board, and a green arrow for the engine's move.
+    await page.waitForSelector('svg.board g.board-badge.cls-blunder');
+    assert((await page.locator('[data-testid="review-bubble"]').innerText()).includes('Nf6 is a blunder'), 'the coach line should say that Nf6 is a blunder');
+    await page.waitForSelector('svg.board g.board-arrow.best');
+    const tb = await page.locator('svg.board').boundingBox();
+    const ts = await page.locator('.game-layout').evaluate((l) => l.lastElementChild.getBoundingClientRect().top);
+    assert(Math.abs(ts - tb.y) <= 2, `the side cards should start level with the top of the board (${Math.round(ts)} vs ${Math.round(tb.y)})`);
+    if (process.env.E2E_SHOTS) await page.screenshot({ path: `${process.env.E2E_SHOTS}/review-blunder.png` });
     await page.click('button:has-text("Preview on the board")');
     await page.waitForSelector('.rv-variation');
     await page.waitForSelector('g.board-arrow');

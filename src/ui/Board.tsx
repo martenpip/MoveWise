@@ -26,6 +26,8 @@ export interface BoardProps {
   arrows?: Array<{ from: number; to: number; tone: 'best' | 'played' | 'info' }>;
   /** Squares to ring (the puzzle trainer's third hint). `bad` rings in the error colour. */
   highlights?: Array<{ sq: number; tone: 'hint' | 'bad' | 'good' | 'mark' }>;
+  /** A verdict badge in the top-right corner of a square (Game Review: brilliant, best, inaccuracy, mistake, blunder). */
+  badge?: { sq: number; cls: string; glyph: string } | null;
   /** Square-pick mode (Academy exercises): a click or Enter reports the square and no piece is picked up. */
   onSquare?: (sq: number) => void;
 }
@@ -322,6 +324,18 @@ export function Board(props: BoardProps) {
     );
   });
 
+  const badgeEl = props.badge ? (() => {
+    const { x, y } = pos(props.badge.sq);
+    const long = props.badge.glyph.length > 1;
+    return (
+      <g className={`board-badge cls-${props.badge.cls}`} style={{ pointerEvents: 'none' }} aria-hidden="true">
+        <circle cx={x + SQ - 16} cy={y + 16} r={24} className="bb-ring" />
+        <circle cx={x + SQ - 16} cy={y + 16} r={20} className="bb-dot" />
+        <text x={x + SQ - 16} y={y + 16} className="bb-glyph" fontSize={long ? 22 : 26} textAnchor="middle" dominantBaseline="central">{props.badge.glyph}</text>
+      </g>
+    );
+  })() : null;
+
   const promoPieces = [QUEEN, ROOK, BISHOP, KNIGHT];
   const promoNames = ['Queen', 'Rook', 'Bishop', 'Knight'];
 
@@ -356,6 +370,7 @@ export function Board(props: BoardProps) {
         {dots}
         {pieces}
         {arrowEls}
+        {badgeEl}
         {focusRing}
       </svg>
       <div className="sr-only" aria-live="polite">

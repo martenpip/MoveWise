@@ -8,7 +8,7 @@ import { describeEnd } from '../../chess/game';
 import { useApp } from '../app';
 import { Board } from '../Board';
 import { useEngineEval } from '../hooks';
-import { EvalBar, MoveList, copyText, downloadText, engineLabel, formatScore, viewAt } from '../shared';
+import { EvalBar, MoveList, copyText, downloadText, engineLabel, formatScore, viewAt, AlignSideToBoard } from '../shared';
 
 /** Convert a UCI principal variation to SAN from a given position. */
 export function pvToSan(fen: string, pv: string[], max = 10): string {
@@ -135,6 +135,7 @@ export function AnalysisPage() {
 
   return (
     <div className="game-layout">
+      <AlignSideToBoard />
       <div className="board-col">
         <h1 style={{ marginBottom: 0 }}>Analysis board</h1>
         <p className="muted small" style={{ margin: 0 }}>

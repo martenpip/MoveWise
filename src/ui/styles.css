@@ -1808,6 +1808,8 @@ tbody th {
 
 /* ---------- Game Review ---------- */
 :root {
+  --rv-brilliant: #3cb9f0;
+  --rv-on: #0b1020;
   --rv-best: #52cab6;
   --rv-good: #72d08c;
   --rv-inacc: #e4ac4b;
@@ -1817,6 +1819,8 @@ tbody th {
   --rv-black-area: #2a3558;
 }
 :root[data-theme='light'] {
+  --rv-brilliant: #0a6ea6;
+  --rv-on: #ffffff;
   --rv-best: #0f7466;
   --rv-good: #1d7434;
   --rv-inacc: #8f5500;
@@ -1825,6 +1829,7 @@ tbody th {
   --rv-white-area: #efe6cf;
   --rv-black-area: #4a5578;
 }
+.cls-brilliant { color: var(--rv-brilliant); }
 .cls-best { color: var(--rv-best); }
 .cls-good { color: var(--rv-good); }
 .cls-inaccuracy { color: var(--rv-inacc); }
@@ -2253,4 +2258,53 @@ h2.h3-look { font-size: 1.05rem; }
   .board-col .trainer-warning p { margin: 4px 0 8px !important; line-height: 1.35; }
   .board-col .trainer-warning .btn-row { gap: 8px; flex-wrap: nowrap; }
   .board-col .trainer-warning .btn-row .btn { flex: 1 1 0; justify-content: center; padding: 8px 6px; font-size: 0.95rem; white-space: normal; line-height: 1.2; min-height: 46px; }
+}
+
+/* Verdict badge on the board, the coach bubble above it, and the evaluation pill. */
+.board-badge .bb-ring { fill: var(--bg, #0e1424); opacity: 0.9; }
+.board-badge .bb-glyph { fill: var(--rv-on); font-weight: 800; font-family: system-ui, sans-serif; }
+.board-badge.cls-brilliant .bb-dot { fill: var(--rv-brilliant); }
+.board-badge.cls-best .bb-dot { fill: var(--rv-best); }
+.board-badge.cls-good .bb-dot { fill: var(--rv-good); }
+.board-badge.cls-inaccuracy .bb-dot { fill: var(--rv-inacc); }
+.board-badge.cls-mistake .bb-dot { fill: var(--rv-mistake); }
+.board-badge.cls-blunder .bb-dot { fill: var(--rv-blunder); }
+.rv-bubble {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+.rv-bub-icon {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--rv-on);
+  background: var(--c, var(--muted));
+}
+.rv-bub-icon.cls-brilliant { --c: var(--rv-brilliant); }
+.rv-bub-icon.cls-best { --c: var(--rv-best); }
+.rv-bub-icon.cls-good { --c: var(--rv-good); }
+.rv-bub-icon.cls-inaccuracy { --c: var(--rv-inacc); }
+.rv-bub-icon.cls-mistake { --c: var(--rv-mistake); }
+.rv-bub-icon.cls-blunder { --c: var(--rv-blunder); }
+.rv-bub-text { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.rv-bub-sub { color: var(--muted); font-size: 0.88rem; }
+.rv-pill {
+  flex: none;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--surface-2, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--line);
 }

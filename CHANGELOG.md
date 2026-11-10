@@ -3,6 +3,9 @@
 ## 0.8.0
 
 Changes after the first look on a real tablet
+- Puzzles on a tablet: the whole board is now on screen (it used to be cut off at the bottom), and the board and the side cards fill the width like on the other pages.
+- The side cards now start level with the top of the board on Play, Puzzles, Analysis, Games and Review (they used to float a little above it).
+- Game Review looks more like a coach: a line above the board ("Nf6 is a blunder", the best move, the evaluation), a verdict badge on the piece's square (brilliant !!, best ★, good ✓, inaccuracy ?!, mistake ?, blunder ??), and a green arrow for the engine's move after a weak move (switch it off with the "Best-move arrow" button). "Brilliant" is new and strict: the engine's own choice that gives up a piece or more and still leaves you at least level and not already winning. The names are the ones chess.com uses; "okay" is Inaccuracy and "bad" is Mistake. Tests: `tests/review-brilliant.test.ts`, and the review and tablet browser tests.
 - Tablet layout: on a landscape tablet the board is as large as the screen height allows and the side cards now fill the width that is left, instead of leaving about 270 px of empty space between them. New browser test: `npm run test:e2e:tablet`.
 - New piece set, "Flat", replacing "Gloss": minimalist pieces with one flat colour, a thin outline and one quiet shaded half, no gradients. Each is recognised by its silhouette (ball-on-a-stem pawn, three-notch tower, horse head, slit mitre, five-pointed beaded crown, cross on a bell), so they stay distinguishable at small sizes. Original to MoveWise.
 - Sound: the piece-placement sound is rebuilt to resemble a wooden piece set down on a wooden board: a crisp contact click, a short wooden "tock" made of quickly dying inharmonic resonances, a hollow thud of the board and a tiny settling tick. Captures are lower and heavier. Measured, not yet judged by ear. See docs/sound-and-achievements.md.

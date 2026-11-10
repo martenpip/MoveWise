@@ -15,7 +15,7 @@ import { Board } from '../Board';
 import { useEngineEval, useMediaQuery } from '../hooks';
 import { useTrainer } from '../useTrainer';
 import { TrainerPanel, TrainerWarning, type PendingWarning } from './TrainerPanel';
-import { CapturedRow, EvalBar, MoveList, MoveStrip, copyText, downloadText, engineLabel, formatScore, newId, viewAt } from '../shared';
+import { CapturedRow, EvalBar, MoveList, MoveStrip, copyText, downloadText, engineLabel, formatScore, newId, viewAt, AlignSideToBoard } from '../shared';
 
 type ColorChoice = 'white' | 'black' | 'random';
 
@@ -570,6 +570,7 @@ export function PlayPage() {
 
   return (
     <div className="game-layout">
+      <AlignSideToBoard />
       <h1 className="sr-only">{gameMode === 'trainer' ? 'Game with the Trainer' : 'Game'} against {botName}</h1>
       <div className="board-col">
         {strip(topColor)}

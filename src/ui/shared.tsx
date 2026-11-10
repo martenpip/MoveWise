@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import { Position } from '../chess/position';
 import { BISHOP, KNIGHT, PAWN, QUEEN, ROOK, makePiece, pieceColor, pieceType, type Color } from '../chess/types';
 import type { Game, PlayedMove } from '../chess/game';
@@ -192,3 +192,36 @@ export const newId = (): string => `${Date.now().toString(36)}-${Math.random().t
 
 export const formatDate = (t: number): string =>
   new Date(t).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+
+/**
+ * Put it as the first child of a `.game-layout`. On a tablet or desktop it pushes the side column down until its top is level with
+ * the top of the board, whatever sits above the board (a back link, a player name, a coach bubble). On a phone the layout is one
+ * column and nothing is moved. It renders nothing visible.
+ */
+export function AlignSideToBoard() {
+  const marker = useRef<HTMLElement>(null);
+  useLayoutEffect(() => {
+    const layout = marker.current?.parentElement;
+    if (!layout) return undefined;
+    const apply = () => {
+      const board = layout.querySelector('svg.board');
+      const side = layout.lastElementChild as HTMLElement | null;
+      if (!board || !side || side === marker.current) return;
+      side.style.marginTop = '';
+      if (!window.matchMedia('(min-width: 901px)').matches) return;
+      const d = board.getBoundingClientRect().top - side.getBoundingClientRect().top;
+      if (d > 0) side.style.marginTop = `${Math.round(d)}px`;
+    };
+    apply();
+    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(apply);
+    const col = layout.querySelector('.board-col');
+    if (ro && col) ro.observe(col);
+    window.addEventListener('resize', apply);
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener('resize', apply);
+      if (layout.lastElementChild) (layout.lastElementChild as HTMLElement).style.marginTop = '';
+    };
+  });
+  return <i ref={marker} hidden />;
+}

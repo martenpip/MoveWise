@@ -32,6 +32,32 @@ try {
     console.log(`  ok   ${w}x${h}: board ${Math.round(m.boardW)}px, gap ${Math.round(gap)}px`);
     await page.context().close();
   }
+  // Puzzles: the whole board is on screen and the side cards start level with the top of the board, on every page that has both.
+  for (const [w, h] of [[1180, 760], [1024, 700], [1366, 900]]) {
+    const pz = await (await browser.newContext({ viewport: { width: w, height: h } })).newPage();
+    await pz.goto(`http://localhost:${PORT}/#/puzzles`);
+    await pz.click('[data-testid=mode-practice]');
+    await pz.waitForSelector('[data-testid=puzzle-instruction]');
+    await pz.waitForTimeout(300);
+    const m = await pz.evaluate(() => {
+      const b = document.querySelector('svg.board').getBoundingClientRect();
+      const side = document.querySelector('.game-layout').lastElementChild.getBoundingClientRect();
+      return { top: b.top, bottom: b.bottom, sideTop: side.top, sideLeft: side.left, boardRight: b.right, vh: innerHeight, scrollY: scrollY };
+    });
+    if (m.bottom > m.vh) throw new Error(`Puzzles ${w}x${h}: the bottom of the board is cut off (board ends at ${Math.round(m.bottom)}, screen is ${m.vh})`);
+    if (Math.abs(m.sideTop - m.top) > 2) throw new Error(`Puzzles ${w}x${h}: the cards start ${Math.round(m.top - m.sideTop)}px away from the top of the board`);
+    if (m.sideLeft - m.boardRight > 40) throw new Error(`Puzzles ${w}x${h}: ${Math.round(m.sideLeft - m.boardRight)}px of empty space beside the board`);
+    console.log(`  ok   Puzzles ${w}x${h}: whole board visible, cards level with its top`);
+    await pz.context().close();
+  }
+  const pl = await (await browser.newContext({ viewport: { width: 1180, height: 760 } })).newPage();
+  await pl.goto(`http://localhost:${PORT}/#/play`);
+  await pl.click('button:has-text("Start game")');
+  await pl.waitForSelector('svg.board');
+  await pl.waitForTimeout(300);
+  const pm = await pl.evaluate(() => ({ top: document.querySelector('svg.board').getBoundingClientRect().top, side: document.querySelector('.game-layout').lastElementChild.getBoundingClientRect().top }));
+  if (Math.abs(pm.side - pm.top) > 2) throw new Error(`Play: the cards start ${Math.round(pm.top - pm.side)}px away from the top of the board`);
+  console.log('  ok   Play 1180x760: cards level with the top of the board');
   // Pages with a toolbar under the board (Analysis) must not push the board off the left edge.
   const an = await (await browser.newContext({ viewport: { width: 1200, height: 900 } })).newPage();
   await an.goto(`http://localhost:${PORT}/#/analysis`);

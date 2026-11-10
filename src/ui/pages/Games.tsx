@@ -10,7 +10,7 @@ import type { SavedGame } from '../../storage/types';
 import { go, useApp } from '../app';
 import { Board } from '../Board';
 import { useEngineEval } from '../hooks';
-import { CapturedRow, EvalBar, MoveList, copyText, downloadText, engineLabel, formatDate, formatScore, newId, viewAt } from '../shared';
+import { CapturedRow, EvalBar, MoveList, copyText, downloadText, engineLabel, formatDate, formatScore, newId, viewAt, AlignSideToBoard } from '../shared';
 import { pvToSan } from './Analysis';
 
 export type Outcome = 'win' | 'loss' | 'draw' | 'unknown';
@@ -249,6 +249,7 @@ function Replay({ id }: { id: string }) {
 
   return (
     <div className="game-layout">
+      <AlignSideToBoard />
       <h1 className="sr-only">{`${record.white} against ${record.black}`}</h1>
       <div className="board-col">
         <a href="#/games" className="small">← All games</a>

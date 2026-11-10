@@ -3,6 +3,7 @@
  * a class for every move, centipawn loss, accuracy, per-phase figures, tags that the engine's own lines support,
  * and the critical moments. Pure and deterministic: the same review always gives the same analysis.
  */
+import { KING, PAWN } from '../chess/types';
 import { Game } from '../chess/game';
 import { Position } from '../chess/position';
 import {
@@ -23,6 +24,14 @@ export const MIN_PHASE_MOVES = 3;
 
 /** A material change this large (2 points = two pawns) along the engine's line counts as winning or losing material. */
 const MATERIAL_SWING = 200;
+
+/**
+ * A "brilliant" move is the engine's own choice that gives up real material (a piece or more, at least two pawns net along the
+ * engine's line) and still leaves the mover at least level and not already winning clearly. Deliberately strict: it should be rare.
+ */
+export function isBrilliant(m: { forced: boolean; matchedEngine: boolean; pieceType: number; materialIfPlayed: number; winBefore: number; winAfter: number }): boolean {
+  return !m.forced && m.matchedEngine && m.pieceType !== PAWN && m.pieceType !== KING && m.materialIfPlayed <= -200 && m.winAfter >= 50 && m.winBefore < 85;
+}
 
 export interface PlyAnalysis {
   /** 1-based half-move number. */
@@ -47,6 +56,8 @@ export interface PlyAnalysis {
   cpLoss: number;
   accuracy: number;
   cls: MoveClass;
+  /** A best move that gave up material for an advantage the engine confirms (see `isBrilliant`). Shown as "Brilliant", never stored. */
+  brilliant: boolean;
   phase: Phase;
   tags: Tag[];
   /** Details of the move played, the engine's choice and the lines (null where not applicable). */
@@ -181,7 +192,7 @@ export function analyseReview(review: GameReview): ReviewAnalysis {
 
     plies.push({
       ply: i + 1, color: mover, uci, san: entry.san, fenBefore, fenAfter: entry.fen, before, after, forced, matchedEngine,
-      winBefore, winAfter, winLoss, cpLoss, accuracy, cls, phase, tags, played, best, bestLine, afterLine,
+      winBefore, winAfter, winLoss, cpLoss, accuracy, cls, brilliant: isBrilliant({ forced, matchedEngine, pieceType: played.pieceType, materialIfPlayed, winBefore, winAfter }), phase, tags, played, best, bestLine, afterLine,
       refutationCapturesMoved, materialIfBest, materialIfPlayed, mateBefore, mateAfter,
     });
   }
